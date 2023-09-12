@@ -43,7 +43,7 @@ class Local_Planner():
         self.times = 0
         self.obstacle_markerarray = MarkerArray()
         self.ob_pub = rospy.Publisher('/ob_draw', MarkerArray, queue_size=10)
-        
+
 
     def distance_sqaure(self,c1,c2):
         distance = (c1[0]-c2[0])*(c1[0]-c2[0])+(c1[1]-c2[1])*(c1[1]-c2[1])
@@ -115,7 +115,7 @@ class Local_Planner():
             print("no path")
         else:
             print("no path and no pose")
-        
+
 
     def __publish_local_plan(self,input_sol,state_sol):
         local_path = Path()
@@ -134,7 +134,7 @@ class Local_Planner():
             this_pose_stamped.header.stamp = rospy.Time.now()
             this_pose_stamped.header.frame_id="/world"
             local_path.poses.append(this_pose_stamped)
-            
+
             for j in range(2):
                 local_plan.data.append(input_sol[i][j])
 
@@ -144,7 +144,7 @@ class Local_Planner():
     def distance_global(self,c1,c2):
         distance = np.sqrt((c1[0]-c2[0])*(c1[0]-c2[0])+(c1[1]-c2[1])*(c1[1]-c2[1]))
         return distance
-    
+
 
     def find_min_distance(self,c1):
         number =  np.argmin( np.array([self.distance_global(c1,self.desired_global_path[0][i]) for i in range(self.desired_global_path[1])]) )
@@ -154,7 +154,7 @@ class Local_Planner():
         num = self.find_min_distance(self.curr_state)
         scale = 1
         num_list = []
-        for i in range(self.N):  
+        for i in range(self.N):
             num_path = min(self.desired_global_path[1]-1,int(num+i*scale))
             num_list.append(num_path)
         if(num  >= self.desired_global_path[1]):
@@ -170,7 +170,7 @@ class Local_Planner():
         self.curr_state[2] = data.data[3]
         self.curr_state[3] = data.data[4]
         self.curr_state[4] = data.data[5]
- 
+
         self.z = data.data[2]
 
     def _global_path_callback(self, data):
@@ -182,7 +182,7 @@ class Local_Planner():
                 self.desired_global_path[0][i,0]=data.data[3*(size-i)-3]
                 self.desired_global_path[0][i,1]=data.data[3*(size-i)-2]
                 self.desired_global_path[0][i,2]=data.data[3*(size-i)-1]
-    
+
     def _global_path_callback2(self, data):
         if(len(data.data)!=0):
             self.ref_path_set = True
@@ -193,9 +193,9 @@ class Local_Planner():
                 self.desired_global_path[0][i,1]=data.data[5*(size-i)-4]
                 self.desired_global_path[0][i,2]=data.data[5*(size-i)-2]
                 self.desired_global_path[0][i,3]=data.data[5*(size-i)-1]
-            
+
     def cmd(self, data):
-        
+
         self.control_cmd.linear.x = data[0]
         self.control_cmd.angular.z = data[1]
         self.__pub_rtc_cmd.publish(self.control_cmd)

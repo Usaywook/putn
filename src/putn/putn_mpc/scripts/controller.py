@@ -159,7 +159,7 @@ class Controller():
                 if(data[1] < 0.6):
                     data[1] += 0.2
                 else:
-                    data = data      
+                    data = data
             elif key == 's':
                 data = np.array([0.0, 0.0])
             elif key == 'i':
