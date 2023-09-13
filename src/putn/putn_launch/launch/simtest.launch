@@ -13,10 +13,10 @@
 	  <arg name="rviz" value="false"/>
   </include>
 
-  <node pkg="tf" type="static_transform_publisher" name="world_to_camera_init" args="0 0 0 0 0 0 /world /camera_init 10" /><!--10ms-->
+  <node pkg="tf" type="static_transform_publisher" name="world_to_camera_init" args="0 0 0 0 0 0 /world /camera_init 10" />
   <node pkg="tf" type="static_transform_publisher" name="camera_to_link" args="0 0 -0.4 0 0 0 /aft_mapped /base_link 10" />
 
-  <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator">
+  <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" output="screen">
       <remap from="~goal" to="/goal"/>
       <param name="waypoint_type" value="manual-lonely-waypoint"/>
   </node>
@@ -44,6 +44,6 @@
       <param name="file/cfg_path" type="string" value="$(find gpr)/config/hyperparam.txt"/>
   </node>
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find putn_launch)/rviz_config/simulation.rviz" required="true"/>
+  <!-- <node name="rviz" pkg="rviz" type="rviz" args="-d $(find putn_launch)/rviz_config/simulation.rviz" required="true"/> -->
 
 </launch>

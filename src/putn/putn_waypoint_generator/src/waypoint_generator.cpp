@@ -53,7 +53,7 @@ void load_seg(ros::NodeHandle& nh, int segid, const ros::Time& time_base) {
     path_msg.header.stamp = time_base + ros::Duration(time_from_start);
 
     double baseyaw = tf::getYaw(odom.pose.pose.orientation);
-    
+
     for (size_t k = 0; k < ptx.size(); ++k) {
         geometry_msgs::PoseStamped pt;
         pt.pose.orientation = tf::createQuaternionMsgFromYaw(baseyaw + yaw);
@@ -144,7 +144,27 @@ void odom_callback(const nav_msgs::Odometry::ConstPtr& msg) {
     }
 }
 
-void goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg) 
+void clicked_goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
+{
+    cout << "clicked goal recieve_x:  " << msg->pose.position.x<< endl;
+    cout << "clicked goal recieve_y:  " << msg->pose.position.y<< endl;
+    cout << "clicked goal recieve_z:  " << msg->pose.position.z<< endl;
+    if (msg->pose.position.z >= 0)
+    {
+        // if height >= 0, it's a valid goal;
+        geometry_msgs::PoseStamped pt = *msg;
+        waypoints.poses.clear();
+        waypoints.poses.push_back(pt);
+        publish_waypoints_vis();
+        publish_waypoints();
+    }
+    else
+    {
+        ROS_WARN("[waypoint_generator] invalid goal in manual-lonely-waypoint mode.");
+    }
+}
+
+void goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 {
 /*    if (!is_odom_ready) {
         ROS_ERROR("[waypoint_generator] No odom!");
@@ -156,35 +176,35 @@ void goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 
     ros::NodeHandle n("~");
     n.param("waypoint_type", waypoint_type, string("manual"));
-    
-    if (waypoint_type == string("circle")) 
+
+    if (waypoint_type == string("circle"))
     {
         waypoints = circle();
         publish_waypoints_vis();
         publish_waypoints();
-    } 
-    else if (waypoint_type == string("eight")) 
+    }
+    else if (waypoint_type == string("eight"))
     {
         waypoints = eight();
         publish_waypoints_vis();
         publish_waypoints();
     }
-    else if (waypoint_type == string("point")) 
+    else if (waypoint_type == string("point"))
     {
         waypoints = point();
         publish_waypoints_vis();
         publish_waypoints();
-    } 
-    else if (waypoint_type == string("series")) 
+    }
+    else if (waypoint_type == string("series"))
     {
         load_waypoints(n, trigged_time);
-    } 
-    else if (waypoint_type == string("manual-lonely-waypoint")) 
+    }
+    else if (waypoint_type == string("manual-lonely-waypoint"))
     {
         cout << "recieve_x:  " << msg->pose.position.x<< endl;
         cout << "recieve_y:  " << msg->pose.position.y<< endl;
         cout << "recieve_z:  " << msg->pose.position.z<< endl;
-        if (msg->pose.position.z >= 0) 
+        if (msg->pose.position.z >= 0)
         {
             // if height >= 0, it's a valid goal;
             geometry_msgs::PoseStamped pt = *msg;
@@ -192,27 +212,27 @@ void goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
             waypoints.poses.push_back(pt);
             publish_waypoints_vis();
             publish_waypoints();
-        } 
-        else 
+        }
+        else
         {
             ROS_WARN("[waypoint_generator] invalid goal in manual-lonely-waypoint mode.");
         }
-    } 
+    }
     else
     {
-        if (msg->pose.position.z > 0) 
+        if (msg->pose.position.z > 0)
         {
             // if height > 0, it's a normal goal;
             geometry_msgs::PoseStamped pt = *msg;
-            if (waypoint_type == string("noyaw")) 
+            if (waypoint_type == string("noyaw"))
             {
                 double yaw = tf::getYaw(odom.pose.pose.orientation);
                 pt.pose.orientation = tf::createQuaternionMsgFromYaw(yaw);
             }
             waypoints.poses.push_back(pt);
             publish_waypoints_vis();
-        } 
-        else if (msg->pose.position.z > -1.0) 
+        }
+        else if (msg->pose.position.z > -1.0)
         {
             // if 0 > height > -1.0, remove last goal;
             if (waypoints.poses.size() >= 1) {
@@ -220,10 +240,10 @@ void goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
             }
             publish_waypoints_vis();
         }
-        else 
+        else
         {
             // if -1.0 > height, end of input
-            if (waypoints.poses.size() >= 1) 
+            if (waypoints.poses.size() >= 1)
             {
                 publish_waypoints_vis();
                 publish_waypoints();
@@ -274,6 +294,7 @@ int main(int argc, char** argv) {
     ros::Subscriber sub1 = n.subscribe("odom", 10, odom_callback);
     ros::Subscriber sub2 = n.subscribe("goal", 10, goal_callback);
     ros::Subscriber sub3 = n.subscribe("traj_start_trigger", 10, traj_start_trigger_callback);
+    ros::Subscriber sub4 = n.subscribe("clicked_goal", 10, clicked_goal_callback);
     pub1 = n.advertise<nav_msgs::Path>("waypoints", 50);
     pub2 = n.advertise<geometry_msgs::PoseArray>("waypoints_vis", 10);
 
