@@ -6,6 +6,7 @@
  */
 
 #include "PUTN_classes.h"
+#include "wasserstein.h"
 
 using namespace std;
 using namespace Eigen;
@@ -49,9 +50,9 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
         {
             vac(i+fit_num,j+fit_num)=false;
             for(int k = -3;k <= 3;k++)
-            { 
+            {
                 Vector3d point=ball_center+resolution*Vector3d(i,j,k);
-                
+
                 if(world->isInsideBorder(point) && !world->isFree(point))
                 {
                     plane_pts.push_back(point);
@@ -74,8 +75,24 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
 
     JacobiSVD<MatrixXd> svd(A,ComputeFullV);
     normal_vector=svd.matrixV().col(2);
-    
-    //calculate indicator1:flatness      
+
+    //calculate proposed indicator:bumpiness
+    VectorXd eigen_plane_z;
+    eigen_plane_z = (normal_vector(0) * A.col(0) + normal_vector(1) * A.col(1)) / normal_vector(2);
+    vector<double> plane_z;
+    plane_z.resize(eigen_plane_z.size());
+    VectorXd::Map(&plane_z[0], eigen_plane_z.size()) = eigen_plane_z;
+
+    VectorXd eigen_point_z;
+    eigen_point_z = A.col(2);
+    vector<double> point_z;
+    point_z.resize(eigen_point_z.size());
+    VectorXd::Map(&point_z[0], eigen_point_z.size()) = eigen_point_z;
+
+    vector<double> weights(point_z.size(), 1.0);
+    float bumpiness = (float)(wasserstein(plane_z, weights, point_z, weights));
+
+    //calculate indicator1:flatness
     float flatness = 0;
     for(size_t i = 0; i < pt_num; i++) flatness+=powf(normal_vector.dot(A.row(i)),4);
     flatness /= (1+pt_num);
@@ -101,9 +118,9 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
                     M_vac(1,vac_cout) = j;
                     vac_cout++;
                 }
-            }  
+            }
         }
-        
+
         MatrixXd meanVec = M_vac.colwise().mean();
         MatrixXd zeroMeanMat = M_vac;
         RowVectorXd meanVecRow(RowVectorXd::Map(meanVec.data(),M_vac.cols()));
@@ -111,9 +128,9 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
         MatrixXd covMat = (zeroMeanMat.adjoint()*zeroMeanMat)/float(M_vac.rows());
         float trace  = (covMat.transpose()*covMat(0,0)).trace();
         float ratio = vac_cout/(float)(vac.rows()*vac.cols());
- 
+
         if(ratio > arg.ratio_max_) sparsity = 1;
-        else if(ratio > arg.ratio_min_ && ratio < arg.ratio_max_ && (1/trace) > arg.conv_thre_) 
+        else if(ratio > arg.ratio_min_ && ratio < arg.ratio_max_ && (1/trace) > arg.conv_thre_)
             //sparsity = ratio;
             sparsity=(ratio-arg.ratio_min_)/(arg.ratio_max_-arg.ratio_min_);
         else sparsity = 0;
@@ -121,7 +138,7 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
 
     //The traversability is linear combination of the three indicators
     traversability=arg.w_total_*(arg.w_flatness_*flatness+arg.w_slope_*slope+arg.w_sparsity_*sparsity);
-    traversability = (1 < traversability)?1:traversability; 
+    traversability = (1 < traversability)?1:traversability;
 }
 
 
@@ -172,7 +189,7 @@ void World::initGridMap(const Vector3d &lowerbound,const Vector3d &upperbound)
 }
 
 void World::initGridMap(const pcl::PointCloud<pcl::PointXYZ> &cloud)
-{   
+{
     if(cloud.points.empty())
     {
         ROS_ERROR("Can not initialize the map with an empty point cloud!");
@@ -204,12 +221,12 @@ void World::initGridMap(const pcl::PointCloud<pcl::PointXYZ> &cloud)
     }
     has_map_=true;
 }
- 
-bool World::collisionFree(const Node* node_start,const Node* node_end) 
+
+bool World::collisionFree(const Node* node_start,const Node* node_end)
 {
     Vector3d e_z,e_y,e_x;
     Matrix3d rotation_matrix;
-    
+
     Vector3d diff_pos=node_end->position_-node_start->position_;
     Vector3d diff_norm_vector=node_end->plane_->normal_vector-node_start->plane_->normal_vector;
 
@@ -225,7 +242,7 @@ bool World::collisionFree(const Node* node_start,const Node* node_end)
         e_x = diff_pos-(diff_pos.dot(e_z))*diff_pos;
         e_x.normalize();
 
-        e_y = e_z.cross(e_x); 
+        e_y = e_z.cross(e_x);
 
         rotation_matrix << e_x(0),e_y(0),e_z(0),
                            e_x(1),e_y(1),e_z(1),
@@ -245,7 +262,7 @@ bool World::collisionFree(const Node* node_start,const Node* node_end)
 }
 
 void World::setObs(const Vector3d &point)
-{   
+{
     Vector3i idx=coord2index(point);
     grid_map_[idx(0)][idx(1)][idx(2)]=false;
 }
@@ -285,7 +302,7 @@ bool World::isInsideBorder(const Vector3i &index)
 {
     return index(0) >= 0 &&
            index(1) >= 0 &&
-           index(2) >= 0 && 
+           index(2) >= 0 &&
            index(0) < idx_count_(0)&&
            index(1) < idx_count_(1)&&
            index(2) < idx_count_(2);
