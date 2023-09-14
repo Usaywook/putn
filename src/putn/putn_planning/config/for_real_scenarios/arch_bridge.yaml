@@ -5,13 +5,19 @@ map:
   map_y_l: -20.0
   map_y_u: 20.0
 
-planning: 
+planning:
   step_size: 0.3
   h_surf_car: 0.7
   w_flatness: 1000
   w_slope: 0.01
   w_sparsity: 1
   w_fit_plane: 1.0
+  w_bumpiness: 10.0
+
+  c_slope: 0.9
+  c_sparsity: 0.9
+  c_bumpiness: 9.0
+
   radius_fit_plane: 0.6
   ratio_max: 0.1
   ratio_min: 0.04

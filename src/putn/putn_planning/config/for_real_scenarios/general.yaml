@@ -5,7 +5,7 @@ map:
   map_y_l: -20.0
   map_y_u: 20.0
 
-planning: 
+planning:
   start_x: 4.0
   start_y: 0.0
   start_z: 0.5
@@ -21,7 +21,13 @@ planning:
   w_flatness: 2000.0
   w_slope: 0.03
   w_sparsity: 0.2
+  w_bumpiness: 10.0
   w_fit_plane: 0.5
+
+  c_slope: 0.9
+  c_sparsity: 0.9
+  c_bumpiness: 9.0
+
   ratio_max: 0.1
   ratio_min: 0.02
   conv_thre: 0.1152

@@ -25,9 +25,9 @@ class World;
  * @brief class for storing the info of vertex.The recorded information of parent and child nodes will be used to bulid
  * the tree.The cost value represents the sum of the cost values required to arrive from the root node of the tree.
  */
-class Node 
+class Node
 {
-public: 
+public:
     std::vector<Node*> children_;
     Node* parent_=NULL;
 
@@ -68,19 +68,23 @@ struct FitPlaneArg
     double w_flatness_;
     double w_slope_;
     double w_sparsity_;
+    double w_bumpiness_;
     double ratio_max_;
     double ratio_min_;
     double conv_thre_;
+    double c_slope_;
+    double c_sparsity_;
+    double c_bumpiness_;
 };
 
 /**
- * @brief class for describing the local plane.The normal vector can be used to estimate the real 
+ * @brief class for describing the local plane.The normal vector can be used to estimate the real
  * position of the robot when moving on this plane,and the traversability can evaluate whether the
  * the robot is safe when moving on this plane.
  */
-class Plane 
+class Plane
 {
-public: 
+public:
     Eigen::Vector2d init_coord;
     std::vector<Eigen::Vector3d> plane_pts;
     Eigen::Vector3d normal_vector;
@@ -135,14 +139,14 @@ public:
 
     /**
      * @brief Given a 2D coord,start from the lowerbound of the height of the grid map,search upward,
-     *        and determine the boundary between the occupied area and the non occupied area as the 
+     *        and determine the boundary between the occupied area and the non occupied area as the
      *        surface point.
      * @param float x(the first dimension)
      * @param float y(the second dimension)
      * @param Vector3d* p_surface(store the result of the projecting)
      * @return bool true(no obstacle exists),false(exist obstacle)
      */
-    bool project2surface(const float &x,const float &y,Eigen::Vector3d* p_surface); 
+    bool project2surface(const float &x,const float &y,Eigen::Vector3d* p_surface);
     bool project2surface(const Eigen::Vector3d &p_original,Eigen::Vector3d* p_surface){return project2surface(p_original(0),p_original(1),p_surface);}
 
      /**
@@ -152,7 +156,7 @@ public:
      * @return bool true(no obstacle exists),false(exist obstacle)
      */
     bool collisionFree(const Node* node_start,const Node* node_end);
-    
+
     /**
      * @brief Check whether the given point is within the range of the grid map
      * @param Eigen::Vector3i(the index value obtained after discretization of the given point)
@@ -180,7 +184,7 @@ public:
      * @param void
      * @return float
      */
-    float getResolution(){return resolution_;} 
+    float getResolution(){return resolution_;}
 
     Eigen::Vector3d index2coord(const Eigen::Vector3i &index)
     {
@@ -190,7 +194,7 @@ public:
 
     Eigen::Vector3i coord2index(const Eigen::Vector3d &coord)
     {
-        Eigen::Vector3i index = ( (coord-lowerbound_)/resolution_).cast<int>();            
+        Eigen::Vector3i index = ( (coord-lowerbound_)/resolution_).cast<int>();
         return index;
     }
 //protected:
@@ -208,7 +212,7 @@ public:
 
 /**
  * @brief Given a 3D point,extract its x and y coordinates and return a 2D point
- * @param Vector3d 
+ * @param Vector3d
  * @return Vector2d
  */
 inline Eigen::Vector2d project2plane(const Eigen::Vector3d &p){return Eigen::Vector2d(p(0),p(1));}

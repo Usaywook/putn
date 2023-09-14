@@ -12,7 +12,7 @@ namespace planner
 /**
  * @brief represents four different working states of the planner.
  */
-enum PlanningState{Global,Roll,WithoutGoal,Invalid}; 
+enum PlanningState{Global,Roll,WithoutGoal,Invalid};
 
 class PFRRTStar
 {
@@ -26,7 +26,7 @@ public:
     PFRRTStar(const double &height,World* world);//Input the height of the robot center,and the array of grid map.
     ~PFRRTStar();
 
-    /** 
+    /**
      * @brief Set the origin and target for the planner.According to whether they are successfully projected to the
      *        surface,the planner will convert to 3 different working states:Global,Roll,Invalid.
      * @param Vector3d start_point
@@ -36,7 +36,7 @@ public:
      */
     void initWithGoal(const Eigen::Vector3d &start_pos,const Eigen::Vector3d &end_pos);
 
-     /** 
+     /**
      * @brief Only set the origin for the planner.According to whether it's successfully projected to the
      *        surface,the planner will convert to 2 different working states:WithoutGoal,Invalid.
      * @param Vector3d start_point
@@ -57,7 +57,7 @@ public:
     double getCurrentTime(){return curr_time_;}
 
     void setFitPlaneRadius(const float &radius){radius_fit_plane_=radius;}
-    
+
     void setFitPlaneArg(const FitPlaneArg &fit_plane_arg){fit_plane_arg_=fit_plane_arg;}
 
     void setStepSize(const double &step_size){step_size_=step_size;}
@@ -77,7 +77,7 @@ public:
 
     /**
      * @brief Project a point to the surface and then fit a local plane on it.Generate a new node based on the plane.
-     * @param Vector2d 
+     * @param Vector2d
      * @return Node*
      */
     Node* fitPlane(const Eigen::Vector2d &p_original);
@@ -100,7 +100,7 @@ protected:
     int curr_iter_;
     double curr_time_;//(in ms)
 
-    //To accelerate the speed of generating the initial solution,the tree will grow toward the target with it,a centain probability 
+    //To accelerate the speed of generating the initial solution,the tree will grow toward the target with it,a centain probability
     double goal_biased_=0.15;
 
     double goal_threshold_=1.0;
@@ -113,7 +113,7 @@ protected:
 
     //parameters related to function fitPlane
     float h_surf_;
-    FitPlaneArg fit_plane_arg_={1.0,2000.0,0.0014,0.4,0.25,0.4,0.1152};
+    FitPlaneArg fit_plane_arg_={1.0, 2000.0, 0.0014 ,0.4, 10.0, 0.25, 0.4, 0.1152, 0.9, 0.9, 9.0};
     double radius_fit_plane_=1.0;
 
     //radius used in function FindNeighbors
@@ -147,7 +147,7 @@ protected:
     bool inheritTree(Node* new_root);
 //----------
 
-//----------funtions for sample    
+//----------funtions for sample
 
     float getRandomNum();
 
@@ -181,7 +181,7 @@ protected:
 
     /**
      * @brief Check the node.If it has met the conditions set in advance(i.e.,it's close enough to the target),
-     *        add it to the data member "close_check_record_".   
+     *        add it to the data member "close_check_record_".
      * @param Node*
      * @return void
      */
@@ -189,7 +189,7 @@ protected:
 
     /**
      * @brief Read information from "close_check_record_".According to the node information stored in,the function
-     *        will select the node with the smallest valuation funtion,and generate a path through the node   
+     *        will select the node with the smallest valuation funtion,and generate a path through the node
      * @param void
      * @return void
      */

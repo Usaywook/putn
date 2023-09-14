@@ -255,9 +255,13 @@ int main(int argc, char** argv)
   nh.param("planning/w_flatness", fit_plane_arg.w_flatness_, 4000.0);
   nh.param("planning/w_slope", fit_plane_arg.w_slope_, 0.4);
   nh.param("planning/w_sparsity", fit_plane_arg.w_sparsity_, 0.4);
+  nh.param("planning/w_bumpiness", fit_plane_arg.w_bumpiness_, 10.0);
   nh.param("planning/ratio_min", fit_plane_arg.ratio_min_, 0.25);
   nh.param("planning/ratio_max", fit_plane_arg.ratio_max_, 0.4);
   nh.param("planning/conv_thre", fit_plane_arg.conv_thre_, 0.1152);
+  nh.param("planning/c_slope", fit_plane_arg.c_slope_, 0.9);
+  nh.param("planning/c_sparsity", fit_plane_arg.c_sparsity_, 0.9);
+  nh.param("planning/c_bumpiness", fit_plane_arg.c_bumpiness_, 9.0);
 
   nh.param("planning/radius_fit_plane", radius_fit_plane, 1.0);
 
