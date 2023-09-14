@@ -16,7 +16,7 @@ if os.name != 'nt':
     settings = termios.tcgetattr(sys.stdin)
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Path
-from std_msgs.msg import Float32MultiArray, Float32, Int16
+from std_msgs.msg import Float32MultiArray, Float32, Int16, Bool
 
 
 class Controller():
@@ -26,6 +26,8 @@ class Controller():
         self.curr_state = np.zeros(4)
         self.sub1 = rospy.Subscriber(
             '/local_plan', Float32MultiArray, self.local_planner_cb)
+        self.sub2 = rospy.Subscriber(
+            '/emergency', Bool, self.emergency_cb)
         self.pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.pub2 = rospy.Publisher(
             '/curr_state', Float32MultiArray, queue_size=10)
@@ -37,6 +39,7 @@ class Controller():
         self.time_sol = 0
         self.local_plan = np.zeros([self.N, 2])
         self.control_cmd = Twist()
+        self.emergency = False
         self.control_loop()
 
     def quart_to_rpy(self, x, y, z, w):
@@ -96,7 +99,7 @@ class Controller():
             key = self.getKey()
             if key == 'q':
                 return True
-            ref_inputs = self.local_plan[0]
+            ref_inputs = [0,0] if self.emergency else self.local_plan[0]
             self.cmd(ref_inputs)
             self.rate.sleep()
 
@@ -176,6 +179,8 @@ class Controller():
             self.local_plan[i, 0] = msg.data[0+2*i]
             self.local_plan[i, 1] = msg.data[1+2*i]
 
+    def emergency_cb(self, msg):
+        self.emergency = msg.data
 
 if __name__ == '__main__':
     rospy.init_node('control')
