@@ -89,6 +89,7 @@ public:
     std::vector<Eigen::Vector3d> plane_pts;
     Eigen::Vector3d normal_vector;
     float traversability;
+    bool constraint;
 
     Plane();
     Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,const FitPlaneArg &arg);

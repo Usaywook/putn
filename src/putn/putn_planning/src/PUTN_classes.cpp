@@ -137,8 +137,10 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
     }
 
     //The traversability is linear combination of the three indicators
-    traversability=arg.w_total_*(arg.w_flatness_*flatness+arg.w_slope_*slope+arg.w_sparsity_*sparsity + arg.w_bumpiness_ * bumpiness);
-    traversability = (1 < traversability)?1:traversability;
+    // traversability=arg.w_total_*(arg.w_flatness_*flatness+arg.w_slope_*slope+arg.w_sparsity_*sparsity + arg.w_bumpiness_ * bumpiness);
+    traversability=arg.w_total_*(arg.w_slope_*slope+arg.w_sparsity_*sparsity + arg.w_bumpiness_ * bumpiness);
+    constraint = slope > arg.c_slope_ || sparsity > arg.c_sparsity_ || bumpiness > arg.c_bumpiness_;
+    traversability = ((1 < traversability) && constraint) ? 1 : traversability;
 }
 
 
