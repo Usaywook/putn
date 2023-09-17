@@ -38,6 +38,8 @@ void visPath(const std::vector<Node*> &solution,ros::Publisher* path_vis_pub);
  * @brief visualize the tree of PF-RRT*
  */
 void visTree(const std::vector<Node*> &tree,ros::Publisher* tree_vis_pub);
+
+void visTravConst(const std::vector<Node*> &tree, ros::Publisher* trav_vis_pub, ros::Publisher* const_vis_pub);
 }
 
 }

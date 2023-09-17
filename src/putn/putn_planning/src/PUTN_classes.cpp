@@ -76,21 +76,27 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
     JacobiSVD<MatrixXd> svd(A,ComputeFullV);
     normal_vector=svd.matrixV().col(2);
 
-    //calculate proposed indicator:bumpiness
-    // VectorXd eigen_plane_z;
-    // eigen_plane_z = (normal_vector(0) * A.col(0) + normal_vector(1) * A.col(1)) / normal_vector(2);
-    // vector<double> plane_z;
-    // plane_z.resize(eigen_plane_z.size());
-    // VectorXd::Map(&plane_z[0], eigen_plane_z.size()) = eigen_plane_z;
+    // calculate proposed indicator:bumpiness
+    VectorXd eigen_plane_z;
+    eigen_plane_z = (normal_vector(0) * A.col(0) + normal_vector(1) * A.col(1)) / normal_vector(2);
+    vector<double> plane_z;
+    plane_z.resize(eigen_plane_z.size());
+    VectorXd::Map(&plane_z[0], eigen_plane_z.size()) = eigen_plane_z;
 
-    // VectorXd eigen_point_z;
-    // eigen_point_z = A.col(2);
-    // vector<double> point_z;
-    // point_z.resize(eigen_point_z.size());
-    // VectorXd::Map(&point_z[0], eigen_point_z.size()) = eigen_point_z;
+    VectorXd eigen_point_z;
+    eigen_point_z = A.col(2);
+    vector<double> point_z;
+    point_z.resize(eigen_point_z.size());
+    VectorXd::Map(&point_z[0], eigen_point_z.size()) = eigen_point_z;
 
-    // vector<double> weights(point_z.size(), 1.0);
-    // float bumpiness = (float)(wasserstein(plane_z, weights, point_z, weights));
+    vector<double> weights(point_z.size(), 1.0);
+    float bumpiness = (float)(wasserstein(plane_z, weights, point_z, weights));
+    int checknan = isnan(bumpiness);
+    int checkinf = isinf(bumpiness);
+    if (checknan || checkinf)
+    {
+        cout << "\033[91m" << bumpiness << "\033[00m" << endl;
+    }
 
     //calculate indicator1:flatness
     float flatness = 0;
@@ -136,12 +142,12 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
         else sparsity = 0;
     }
 
-    //The traversability is linear combination of the three indicators
-    traversability=arg.w_total_*(arg.w_flatness_*flatness+arg.w_slope_*slope+arg.w_sparsity_*sparsity);
-    traversability = (1 < traversability) ? 1 : traversability;
-    // traversability=arg.w_total_*(arg.w_slope_*slope+arg.w_sparsity_*sparsity + arg.w_bumpiness_ * bumpiness);
-    // constraint = slope > arg.c_slope_ || sparsity > arg.c_sparsity_ || bumpiness > arg.c_bumpiness_;
-    // traversability = ((1 < traversability) && constraint) ? 1 : traversability;
+    // The traversability is linear combination of the three indicators
+    traversability=arg.w_total_*(arg.w_slope_*slope+arg.w_sparsity_*sparsity + arg.w_bumpiness_ * bumpiness);
+    constraint = ((slope > arg.c_slope_) || (bumpiness > arg.c_bumpiness_)) && (sparsity < arg.c_sparsity_);
+
+    traversability = (1.0 < traversability) ? 1.0: traversability;
+    // cout << "\t(slope, sparsity, bump, tra, const): (" << slope << ", " << sparsity << ", " << bumpiness << ", " << traversability << ", " << constraint << ")"<< endl;
 }
 
 

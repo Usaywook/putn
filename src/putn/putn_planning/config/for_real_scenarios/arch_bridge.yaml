@@ -14,9 +14,9 @@ planning:
   w_fit_plane: 1.0
   w_bumpiness: 10.0
 
-  c_slope: 0.9
-  c_sparsity: 0.9
-  c_bumpiness: 9.0
+  c_slope: 0.8
+  c_sparsity: 0.1
+  c_bumpiness: 0.5
 
   radius_fit_plane: 0.6
   ratio_max: 0.1

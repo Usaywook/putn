@@ -21,6 +21,9 @@ public:
     ros::Publisher* tree_vis_pub_=NULL;
     ros::Publisher* goal_vis_pub_=NULL;
     ros::Publisher* tree_tra_pub_=NULL;
+    ros::Publisher* tree_const_pub_=NULL;
+    ros::Publisher* trav_vis_pub_=NULL;
+    ros::Publisher* const_vis_pub_=NULL;
 
     PFRRTStar();
     PFRRTStar(const double &height,World* world);//Input the height of the robot center,and the array of grid map.
@@ -198,6 +201,7 @@ protected:
     float calPathDis(const std::vector<Node*> &nodes);
 
     void pubTraversabilityOfTree(ros::Publisher* tree_tra_pub);
+    void pubTraversabilityOfTree(ros::Publisher* tree_tra_pub, ros::Publisher* tree_const_pub);
 };
 }
 }

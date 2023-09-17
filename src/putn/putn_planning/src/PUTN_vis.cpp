@@ -84,6 +84,69 @@ void visSurf(const vector<Node*>& solution, Publisher* surf_vis_pub)
   surf_vis_pub->publish(map_vis);
 }
 
+void visTravConst(const std::vector<Node*> &tree, ros::Publisher* trav_vis_pub, ros::Publisher* const_vis_pub)
+{
+  if ((trav_vis_pub == NULL) || (const_vis_pub == NULL))
+    return;
+  visualization_msgs::Marker Trav_Points, Const_Points;
+  Trav_Points.header.frame_id = "world";
+  Trav_Points.header.stamp = ros::Time::now();
+  Trav_Points.ns = "Tree";
+  Trav_Points.action = visualization_msgs::Marker::ADD;
+  Trav_Points.pose.orientation.w = 1.0f;
+  Trav_Points.id = 0;
+
+  Trav_Points.type = visualization_msgs::Marker::POINTS;
+  Trav_Points.scale.x = Trav_Points.scale.y = 0.3;
+
+
+  Const_Points.header.frame_id = "world";
+  Const_Points.header.stamp = ros::Time::now();
+  Const_Points.ns = "Tree";
+  Const_Points.action = visualization_msgs::Marker::ADD;
+  Const_Points.pose.orientation.w = 1.0f;
+  Const_Points.id = 0;
+
+  Const_Points.type = visualization_msgs::Marker::POINTS;
+  Const_Points.scale.x = Const_Points.scale.y = 0.3;
+
+
+  geometry_msgs::Point trav_pt, const_pt;
+  std_msgs::ColorRGBA trav_color, const_color;
+  double max_trav = 0;
+  for (const auto& node : tree)
+  {
+    double trav = node->plane_->traversability;
+    if (trav > max_trav)
+    {
+      max_trav = trav;
+    }
+  }
+
+  for (const auto& node : tree)
+  {
+    trav_pt.x = node->position_(0);
+    trav_pt.y = node->position_(1);
+    trav_pt.z = node->position_(2);
+    trav_color.r = (float)(min(node->plane_->traversability / max_trav, 1.0));
+    trav_color.a = 0.5f;
+
+    Trav_Points.colors.push_back(trav_color);
+    Trav_Points.points.push_back(trav_pt);
+
+    const_pt.x = node->position_(0);
+    const_pt.y = node->position_(1);
+    const_pt.z = node->position_(2);
+    const_color.r = const_color.g = const_color.b = 1.0 - node->plane_->constraint;
+    const_color.a = 0.5f;
+
+    Const_Points.colors.push_back(const_color);
+    Const_Points.points.push_back(const_pt);
+  }
+  trav_vis_pub->publish(Trav_Points);
+  const_vis_pub->publish(Const_Points);
+}
+
 void visOriginAndGoal(const vector<Node*>& nodes, Publisher* origin_and_goal_vis_pub)
 {
   if (origin_and_goal_vis_pub == NULL)
@@ -103,9 +166,10 @@ void visOriginAndGoal(const vector<Node*>& nodes, Publisher* origin_and_goal_vis
   Sphere.id = 0;
   Sphere.type = visualization_msgs::Marker::SPHERE_LIST;
 
-  Sphere.scale.x = Sphere.scale.y = Sphere.scale.z = 0.2f;
+  Sphere.scale.x = Sphere.scale.y = Sphere.scale.z = 0.4f;
 
-  Sphere.color.g = Sphere.color.b = Sphere.color.r = Sphere.color.a = 1.0f;
+  Sphere.color.g = Sphere.color.b = Sphere.color.a = 1.0f;
+  Sphere.color.r = 0.0f;
 
   geometry_msgs::Point pt;
   for (const auto& node : nodes)
@@ -241,9 +305,6 @@ void visTree(const vector<Node*>& tree, Publisher* tree_vis_pub)
     pt.x = node->position_(0);
     pt.y = node->position_(1);
     pt.z = node->position_(2);
-    // std_msgs::ColorRGBA color;
-    // color.r=color.g=node->plane_->traversability;
-    // color.b=0;
     // color.a=1;
 
     // Points.colors.push_back(color);

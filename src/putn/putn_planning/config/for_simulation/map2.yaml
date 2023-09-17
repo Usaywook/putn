@@ -15,9 +15,9 @@ planning:
   w_sparsity: 1.5
   w_bumpiness: 10.0
 
-  c_slope: 0.9
-  c_sparsity: 0.9
-  c_bumpiness: 9.0
+  c_slope: 0.8
+  c_sparsity: 0.1
+  c_bumpiness: 0.5
 
   ratio_max: 0.05
   ratio_min: 0.02

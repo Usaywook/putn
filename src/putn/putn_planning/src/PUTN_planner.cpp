@@ -34,7 +34,7 @@ void PFRRTStar::initWithGoal(const Vector3d &start_pos,const Vector3d &end_pos)
         planning_state_=Invalid;
         return;
     }
-    
+
     Node* node_target=fitPlane(end_pos);
 
     planning_state_=(node_target==NULL)?Roll:Global;
@@ -110,7 +110,7 @@ void PFRRTStar::initWithoutGoal(const Vector3d &start_pos)
     path_=Path();
 
     PlanningState last_planning_state=planning_state_;
-  
+
     Node* node_origin=fitPlane(start_pos);
 
     if(node_origin==NULL)
@@ -152,7 +152,7 @@ void PFRRTStar::addInvalidNodes(Node* &node_input,const bool &ifdelete,vector<No
     {
         if(node_input->parent_!=NULL)
             delete_flag=!world_->collisionFree(node_input,node_input->parent_);
-        else//If the root node is input 
+        else//If the root node is input
             delete_flag=!world_->isFree(node_input->position_);
     }
     if(delete_flag) invalid_nodes.push_back(node_input);
@@ -179,21 +179,21 @@ void PFRRTStar::trimTree()
 }
 
 bool PFRRTStar::inheritTree(Node* new_root)
-{ 
+{
     bool result=false;
 
     //considering that the update of grid map may affect the result of plane-fitting
     for(auto&node:tree_) fitPlane(node);
-        
+
     trimTree();
 
     float min_dis = INF;
     Node* node_insert = NULL;
-  
-    for(const auto&node:tree_) 
-    { 
+
+    for(const auto&node:tree_)
+    {
         float tmp_dis=EuclideanDistance(node,new_root);
-        if(tmp_dis < min_dis && world_->collisionFree(node,new_root)) 
+        if(tmp_dis < min_dis && world_->collisionFree(node,new_root))
         {
             min_dis = tmp_dis;
             node_insert = node;
@@ -261,7 +261,7 @@ bool PFRRTStar::inheritPath(Node* new_root,Path::Type type)
             }
             path_=Path();
             clean_vector(tree_);
-            tree_.assign(tmp_nodes.begin()+start_index,tmp_nodes.end());          
+            tree_.assign(tmp_nodes.begin()+start_index,tmp_nodes.end());
             node_origin_=new_root;
             updateNode(node_origin_);
             generatePath();
@@ -284,17 +284,17 @@ Vector2d PFRRTStar::getRandom2DPoint()
     Vector3d ub = world_->getUpperBound();
 
     Vector2d rand_point=Vector2d( (ub(0)-lb(0))*getRandomNum()+lb(0),(ub(1)-lb(1))*getRandomNum()+lb(1));
-    return rand_point;           
+    return rand_point;
 }
 
 Vector3d PFRRTStar::sampleInEllipsoid()
 {
     float cmin=EuclideanDistance(node_target_,node_origin_);
-    Vector3d a_1=(node_target_->position_-node_origin_->position_)/cmin;  
+    Vector3d a_1=(node_target_->position_-node_origin_->position_)/cmin;
     RowVector3d id_t(1,0,0);
     Matrix3d M=a_1*id_t;
     JacobiSVD<MatrixXd> SVD(M,ComputeFullU|ComputeFullV);
-    Matrix3d U=SVD.matrixU();   
+    Matrix3d U=SVD.matrixU();
     Matrix3d V=SVD.matrixV();
     Matrix3d A=Matrix3d::Zero();
     A(0,0)=A(1,1)=1,A(2,2)=U.determinant()*V.determinant();
@@ -334,10 +334,10 @@ Vector2d PFRRTStar::sampleInSector()
         Vector2d diff=pt_2D-start_2D;
         if(diff.norm() < sample_sector_lb_) continue;
         float theta=atan2f(diff(1),diff(0));
-        theta_record.push_back(theta);       
+        theta_record.push_back(theta);
     }
 
-    if(theta_record.empty()) return getRandom2DPoint(); 
+    if(theta_record.empty()) return getRandom2DPoint();
 
     default_random_engine engine;
 
@@ -389,12 +389,12 @@ Node* PFRRTStar::findNearest(const Vector2d &point)
 {
     float min_dis = INF;
     Node* node_closest = NULL;
-  
-    for(const auto&node:tree_) 
-    { 
+
+    for(const auto&node:tree_)
+    {
         //Here use Manhattan distance instead of Euclidean distance to improve the calculate speed.
         float tmp_dis=fabs(point(0)-node->position_(0))+fabs(point(1)-node->position_(1));
-        if(tmp_dis < min_dis) 
+        if(tmp_dis < min_dis)
         {
             min_dis = tmp_dis;
             node_closest = node;
@@ -410,7 +410,7 @@ Vector2d PFRRTStar::steer(const Vector2d &point_rand_projection, const Vector2d 
     float steer_norm=steer_p.norm();
     if (steer_norm > step_size_) //check if the EuclideanDistance between two nodes is larger than the maximum travel step size
         point_new_projection = point_nearest_projection +  steer_p * step_size_/steer_norm;
-    else 
+    else
         point_new_projection=point_rand_projection;
     return point_new_projection;
 }
@@ -419,7 +419,7 @@ Node* PFRRTStar::fitPlane(const Vector2d &p_original)
 {
     Node* node = NULL;
     Vector3d p_surface;
-    
+
     //make sure that p_original can be projected to the surface,otherwise the nullptr will be returned
     if(world_->project2surface(p_original(0),p_original(1),&p_surface))
     {
@@ -447,21 +447,21 @@ void PFRRTStar::fitPlane(Node* node)
     }
 }
 
-void PFRRTStar::findNearNeighbors(Node* node_new,vector<pair<Node*,float>> &record) 
-{ 
-    for (const auto&node:tree_) 
+void PFRRTStar::findNearNeighbors(Node* node_new,vector<pair<Node*,float>> &record)
+{
+    for (const auto&node:tree_)
     {
         if(EuclideanDistance(node_new,node) < neighbor_radius_ && world_->collisionFree(node_new,node) )
             record.push_back( pair<Node*,float>(node,calCostBetweenTwoNode(node_new,node)) );
     }
 }
 
-void PFRRTStar::findParent(Node* node_new,const vector<pair<Node*,float>> &record) 
-{    
+void PFRRTStar::findParent(Node* node_new,const vector<pair<Node*,float>> &record)
+{
     Node* node_parent=NULL;
     float min_cost = INF;
-    for(const auto&rec:record) 
-    { 
+    for(const auto&rec:record)
+    {
         Node* node=rec.first;
         float tmp_cost=node->cost_+rec.second;
         if(tmp_cost < min_cost)
@@ -475,14 +475,14 @@ void PFRRTStar::findParent(Node* node_new,const vector<pair<Node*,float>> &recor
     node_parent->children_.push_back(node_new);
 }
 
-void PFRRTStar::reWire(Node* node_new,const vector<pair<Node*,float>> &record) 
-{ 
-    for (const auto&rec:record) 
-    { 
+void PFRRTStar::reWire(Node* node_new,const vector<pair<Node*,float>> &record)
+{
+    for (const auto&rec:record)
+    {
         Node* node=rec.first;
         float tmp_cost=node_new->cost_+rec.second;//cost value if the new node is the parent
         float costdifference=node->cost_-tmp_cost;//compare the two and update if the latter is smaller,change new node to the parent node
-        if(costdifference > 0) 
+        if(costdifference > 0)
         {
             deleteChildren(node->parent_,node);
             node->parent_=node_new;
@@ -505,12 +505,12 @@ void PFRRTStar::deleteChildren(Node* node_parent,Node* node_children)
     }
 }
 
-void PFRRTStar::updateChildrenCost(Node* &node_root, const float &costdifference) 
+void PFRRTStar::updateChildrenCost(Node* &node_root, const float &costdifference)
 {
     for(auto&node:node_root->children_)
     {
         node->cost_ -= costdifference;
-        updateChildrenCost(node,costdifference); 
+        updateChildrenCost(node,costdifference);
     }
 }
 
@@ -524,7 +524,7 @@ void PFRRTStar::closeCheck(Node* node)
                 close_check_record_.push_back(pair<Node*,float>(node,calCostBetweenTwoNode(node,node_target_)));
         }
         break;
-        case Roll: 
+        case Roll:
         {
             if(EuclideanDistance(project2plane(node->position_),end_pos_2D_) < sub_goal_threshold_)
                 close_check_record_.push_back(pair<Node*,float>(node,powf(EuclideanDistance(end_pos_2D_,project2plane(node->position_)),3)));
@@ -551,7 +551,7 @@ void PFRRTStar::generatePath()
         {
             Node* node_choosed=NULL;
             float min_cost=path_.cost_;
-            for (const auto&rec:close_check_record_) 
+            for (const auto&rec:close_check_record_)
             {
                 Node* node=rec.first;
                 float tmp_cost=node->cost_+rec.second;
@@ -580,14 +580,14 @@ void PFRRTStar::generatePath()
         {
             path_=Path();
             Node* sub_goal = NULL;
-            float min_cost = INF;  
-            for(const auto&rec:close_check_record_) 
-            { 
+            float min_cost = INF;
+            for(const auto&rec:close_check_record_)
+            {
                 Node* node=rec.first;
                 float tmp_cost=node->cost_+rec.second;
-                if (tmp_cost < min_cost) 
+                if (tmp_cost < min_cost)
                 {
-                    min_cost = tmp_cost; 
+                    min_cost = tmp_cost;
                     sub_goal = node;
                 }
             }
@@ -651,11 +651,11 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
         Vector2d new_point_2D = steer(rand_point_2D,nearest_point_2D);
 
         //Based on the new 2D point,
-        Node* new_node = fitPlane(new_point_2D); 
+        Node* new_node = fitPlane(new_point_2D);
 
         if( new_node!=NULL//1.Fail to fit the plane,it will return a null pointer
             &&world_->isInsideBorder(new_node->position_)//2.The position is out of the range of the grid map.
-          ) 
+          )
         {
             //Get the set of the neighbors of the new node in the tree
             vector<pair<Node*,float>> neighbor_record;
@@ -682,7 +682,7 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
 
             if(planning_state_==Global) generatePath();
         }
-        else  
+        else
             delete new_node;
     }
 
@@ -690,7 +690,8 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
 
     visTree(tree_,tree_vis_pub_);
     pubTraversabilityOfTree(tree_tra_pub_);
-    
+    visTravConst(tree_, trav_vis_pub_, const_vis_pub_);
+
     return path_;
 }
 
@@ -706,4 +707,25 @@ void PFRRTStar::pubTraversabilityOfTree(Publisher* tree_tra_pub)
         msg.data.push_back(node->plane_->traversability);
     }
     tree_tra_pub->publish(msg);
+}
+
+void PFRRTStar::pubTraversabilityOfTree(Publisher* tree_tra_pub, Publisher* tree_const_pub)
+{
+    if((tree_tra_pub==NULL) || (tree_const_pub==NULL)) return;
+    Float32MultiArray tra_msg;
+    Float32MultiArray const_msg;
+    for(const auto&node:tree_)
+    {
+        tra_msg.data.push_back(node->position_(0));
+        tra_msg.data.push_back(node->position_(1));
+        tra_msg.data.push_back(node->position_(2));
+        tra_msg.data.push_back(node->plane_->traversability);
+
+        const_msg.data.push_back(node->position_(0));
+        const_msg.data.push_back(node->position_(1));
+        const_msg.data.push_back(node->position_(2));
+        const_msg.data.push_back(node->plane_->constraint);
+    }
+    tree_tra_pub->publish(tra_msg);
+    tree_const_pub->publish(const_msg);
 }

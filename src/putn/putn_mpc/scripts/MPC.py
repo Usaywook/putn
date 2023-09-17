@@ -70,7 +70,6 @@ def MPC(self_state, goal_state, obstacles, psi_prev=0, k_q=20, q_coeff_max=10, i
     psi = np.arcsin(sin_psi) if not np.isnan(sin_psi) else psi_prev
     q_coeff = min(k_q * max(0, np.tan(psi)) + 1, q_coeff_max)
     Q[3, 3] = q_coeff * init_Qv
-    print("\tpsi : %.2f, q_coeff : %.2f\n" %(psi, q_coeff))
 
     ## state variables
     target_velocities = np.ones(shape=(len(goal_state), 1)) * v_max
@@ -117,7 +116,8 @@ def MPC(self_state, goal_state, obstacles, psi_prev=0, k_q=20, q_coeff_max=10, i
         sol = opti.solve()
         u_res = sol.value(opt_controls)
         state_res = sol.value(opt_states)
-        print(self_state[:, 3])
+
+        print("\tpsi : %.2f, q_coeff : %.2f, cur_vel : %.2f\n" %(psi, q_coeff, self_state[0, 3]))
     except:
         state_res = np.repeat(self_state[:4],N+1,axis=0)
         u_res = np.zeros([N,2])

@@ -21,12 +21,16 @@ backward::SignalHandling sh;
 ros::Subscriber map_sub, wp_sub;
 
 ros::Publisher grid_map_vis_pub;
+
 ros::Publisher path_vis_pub;
 ros::Publisher goal_vis_pub;
 ros::Publisher surf_vis_pub;
 ros::Publisher tree_vis_pub;
 ros::Publisher path_interpolation_pub;
 ros::Publisher tree_tra_pub;
+ros::Publisher tree_const_pub;
+ros::Publisher trav_vis_pub;
+ros::Publisher const_vis_pub;
 
 // indicate whether the robot has a moving goal
 bool has_goal = false;
@@ -247,7 +251,10 @@ int main(int argc, char** argv)
   goal_vis_pub = nh.advertise<visualization_msgs::Marker>("goal_vis", 1);
   surf_vis_pub = nh.advertise<sensor_msgs::PointCloud2>("surf_vis", 100);
   tree_vis_pub = nh.advertise<visualization_msgs::Marker>("tree_vis", 1);
+  trav_vis_pub = nh.advertise<visualization_msgs::Marker>("trav_vis", 1);
+  const_vis_pub = nh.advertise<visualization_msgs::Marker>("const_vis", 1);
   tree_tra_pub = nh.advertise<std_msgs::Float32MultiArray>("tree_tra", 1);
+  tree_const_pub = nh.advertise<std_msgs::Float32MultiArray>("tree_const", 1);
   path_interpolation_pub = nh.advertise<std_msgs::Float32MultiArray>("global_path", 1000);
 
   nh.param("map/resolution", resolution, 0.1);
@@ -287,6 +294,9 @@ int main(int argc, char** argv)
   pf_rrt_star->goal_vis_pub_ = &goal_vis_pub;
   pf_rrt_star->tree_vis_pub_ = &tree_vis_pub;
   pf_rrt_star->tree_tra_pub_ = &tree_tra_pub;
+  pf_rrt_star->tree_const_pub_ = &tree_const_pub;
+  pf_rrt_star->trav_vis_pub_ = &trav_vis_pub;
+  pf_rrt_star->const_vis_pub_ = &const_vis_pub;
 
   tf::TransformListener listener;
 
