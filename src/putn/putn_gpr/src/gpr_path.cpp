@@ -14,10 +14,11 @@ typedef Eigen::Matrix<float,3,1> input_type;
 typedef Eigen::Matrix<float,1,1> output_type;
 std::vector<input_type> train_inputs, test_inputs;
 std::vector<output_type> train_outputs, test_outputs;
+std::vector<input_type> test_normals;
 ros::Publisher _surf_predict_pub;
 
 string filepath;
-    
+
 template<typename input_type, typename output_type>
 void load_data(const char *fname, std::vector<input_type> &inputs, std::vector<output_type> &outputs, int input_dim, int output_dim) {
   std::cout<<"entry this branch........"<<std::endl;
@@ -57,14 +58,14 @@ void set_hyperparameters_from_file(const char *fname, GaussianProcessRegression<
   gpr.SetHyperParams(l,f,n);
 }
 
-void ClearVectorIn( vector< input_type >& vt ) 
+void ClearVectorIn( vector< input_type >& vt )
 {
-  vector< input_type >  veTemp; 
+  vector< input_type >  veTemp;
   veTemp.swap( vt );
 }
-void ClearVectorOut( vector< output_type >& vt ) 
+void ClearVectorOut( vector< output_type >& vt )
 {
-  vector< output_type > veTemp; 
+  vector< output_type > veTemp;
   veTemp.swap( vt );
 }
 
@@ -76,7 +77,7 @@ void treecb(const std_msgs::Float32MultiArray::ConstPtr& msg)
   if(msg->data.size() == 0) return;
 
   int num = (int)(msg->data.size()/4);
-	for (int i=0; i<num; i++) 
+	for (int i=0; i<num; i++)
   {
     input_type tmp_in;
     tmp_in << msg->data[4*i],msg->data[4*i+1],msg->data[4*i+2];
@@ -93,7 +94,7 @@ void treecb(const std_msgs::Float32MultiArray::ConstPtr& msg)
   for(size_t k=0; k<train_inputs.size(); k++){
       myGPR.AddTrainingData(train_inputs[k], train_outputs[k]);
    }
-  
+
   double threshold = 0.1;
 
 
@@ -103,6 +104,7 @@ void treecb(const std_msgs::Float32MultiArray::ConstPtr& msg)
     ClearVectorIn(test_inputs);
     ClearVectorOut(train_outputs);
     ClearVectorOut(test_outputs);
+    ClearVectorIn(test_normals);
   }
 
 
@@ -122,7 +124,9 @@ void treecb(const std_msgs::Float32MultiArray::ConstPtr& msg)
     out_ym.data.push_back(test_inputs[k](2,0));
     out_ym.data.push_back(tmp_out(0,0));
     out_ym.data.push_back(outp_cov(0,0));
-
+    out_ym.data.push_back(test_normals[k](0,0));
+    out_ym.data.push_back(test_normals[k](1,0));
+    out_ym.data.push_back(test_normals[k](2,0));
   }
   _surf_predict_pub.publish(out_ym);
   std_msgs::Float32MultiArray tmp_out;
@@ -130,6 +134,7 @@ void treecb(const std_msgs::Float32MultiArray::ConstPtr& msg)
   ClearVectorIn(test_inputs);
   ClearVectorOut(train_outputs);
   ClearVectorOut(test_outputs);
+  ClearVectorIn(test_normals);
   end = clock();
   dur = (double)(end - start);
   cout<<"Time consume ："<<dur/1000<<" ms"<<endl;
@@ -140,12 +145,15 @@ void pathcb(const std_msgs::Float32MultiArray::ConstPtr& msg)
   ROS_INFO("[node] receive the path");
   if(msg->data.size() == 0) return;
 
-  int num = (int)(msg->data.size()/3) ;
-	for (int i=0; i<num; i++) 
+  int num = (int)(msg->data.size()/6) ;
+	for (int i=0; i<num; i++)
   {
     input_type tmp_in;
-    tmp_in <<msg->data[3*i],msg->data[3*i+1],msg->data[3*i+2];
+    tmp_in <<msg->data[6*i],msg->data[6*i+1],msg->data[6*i+2];
     test_inputs.push_back(tmp_in);
+    input_type temp_normal;
+    temp_normal <<msg->data[6*i+3],msg->data[6*i+4],msg->data[6*i+5];
+    test_normals.push_back(temp_normal);
 	}
 }
 
@@ -155,12 +163,12 @@ int main(int argc, char **argv)
     ros::init (argc, argv, "GPR");
     ros::NodeHandle ph("~");
     ros::Subscriber _tree_sub,_path_sub;
-    
+
     _tree_sub = ph.subscribe( "/global_planning_node/tree_tra",  1,treecb  );
     _path_sub = ph.subscribe( "/global_planning_node/global_path",  1,pathcb  );
     _surf_predict_pub = ph.advertise< std_msgs::Float32MultiArray>("/surf_predict_pub",1);
 
-    ph.param<string>("file/cfg_path",filepath,"");   
+    ph.param<string>("file/cfg_path",filepath,"");
     while(ros::ok())
     {
         ros::spinOnce();

@@ -13,15 +13,15 @@ from std_srvs.srv import SetBool
 
 class Local_Planner():
     def __init__(self):
-        self.replan_period = rospy.get_param('/local_planner/replan_period', 0.01)
-        self.curr_state = np.zeros(5)
+        self.replan_period = rospy.get_param('/local_planner/replan_period', 0.1)
+        self.curr_state = np.zeros(6)
         self.z = 0
         self.N = 10
-        self.goal_state = np.zeros([self.N,4])
+        self.goal_state = np.zeros([self.N,8])
         self.ref_path_close_set = False
         self.target_state = np.array([-1,4,np.pi/2])
         self.target_state_close = np.zeros(3)
-        self.desired_global_path = [ np.zeros([300,4]) , 0]
+        self.desired_global_path = [ np.zeros([300,8]) , 0]
         self.have_plan = False
         self.is_close = False
         self.is_get = False
@@ -35,7 +35,7 @@ class Local_Planner():
         self.__timer_replan = rospy.Timer(rospy.Duration(self.replan_period), self.__replan_cb)
         self.__sub_curr_state = rospy.Subscriber('/curr_state', Float32MultiArray, self.__curr_pose_cb, queue_size=10)
         self.__sub_obs = rospy.Subscriber('/obs', Float32MultiArray, self.__obs_cb, queue_size=10)
-        self.__sub_goal_state = rospy.Subscriber('/surf_predict_pub', Float32MultiArray, self._global_path_callback2, queue_size=10)
+        self.__sub_goal_state = rospy.Subscriber('/surf_predict_pub', Float32MultiArray, self._global_path_callback3, queue_size=10)
         self.__pub_local_path = rospy.Publisher('/local_path', Path, queue_size=10)
         self.__pub_local_plan = rospy.Publisher('/local_plan', Float32MultiArray, queue_size=10)
         self.control_cmd = Twist()
@@ -104,7 +104,7 @@ class Local_Planner():
             start_time = rospy.Time.now()
             states_sol, input_sol = MPC(np.expand_dims(self.curr_state, axis=0),self.goal_state,self.ob) ##  gobal planning
             end_time = rospy.Time.now()
-            rospy.loginfo('[pHRI Planner] phri so[lved in {} sec'.format((end_time-start_time).to_sec()))
+            # rospy.loginfo('[pHRI Planner] phri so[lved in {} sec'.format((end_time-start_time).to_sec()))
 
             if(self.is_end == 0):
                 self.__publish_local_plan(input_sol,states_sol)
@@ -161,17 +161,25 @@ class Local_Planner():
             self.is_end = 1
         for k in range(self.N):
             self.goal_state[k] = self.desired_global_path[0][num_list[k]]
-        print(self.goal_state)
+        # print(self.goal_state)
 
     def __curr_pose_cb(self, data):
-        self.robot_state_set = True
-        self.curr_state[0] = data.data[0]
-        self.curr_state[1] = data.data[1]
-        self.curr_state[2] = data.data[3]
-        self.curr_state[3] = data.data[4]
-        self.curr_state[4] = data.data[5]
+        if self.ref_path_set == True:
+            vel = (data.data[:2] - self.curr_state[:2]) / self.replan_period
+            yaw = data.data[3]
+            headVec = np.array([np.cos(yaw), np.sin(yaw)])
+            velDirection = 1. if np.dot(headVec, vel) >= 0 else -1.
+            ReallinVel = velDirection * np.linalg.norm(vel)
 
-        self.z = data.data[2]
+            self.robot_state_set = True
+            self.curr_state[0] = data.data[0] # x
+            self.curr_state[1] = data.data[1] # y
+            self.curr_state[2] = data.data[3] # yaw
+            self.curr_state[3] = ReallinVel   # vel
+            self.curr_state[4] = data.data[4] # roll
+            self.curr_state[5] = data.data[5] # pitch
+
+            self.z = data.data[2]
 
     def _global_path_callback(self, data):
         if(len(data.data)!=0):
@@ -189,10 +197,25 @@ class Local_Planner():
             size = len(data.data)/5
             self.desired_global_path[1]=size
             for i in range(size):
-                self.desired_global_path[0][i,0]=data.data[5*(size-i)-5]
-                self.desired_global_path[0][i,1]=data.data[5*(size-i)-4]
-                self.desired_global_path[0][i,2]=data.data[5*(size-i)-2]
-                self.desired_global_path[0][i,3]=data.data[5*(size-i)-1]
+                self.desired_global_path[0][i,0]=data.data[5*(size-i)-5] # x
+                self.desired_global_path[0][i,1]=data.data[5*(size-i)-4] # y
+                self.desired_global_path[0][i,2]=data.data[5*(size-i)-2] # trav
+                self.desired_global_path[0][i,3]=data.data[5*(size-i)-1] # cov
+
+    def _global_path_callback3(self, data):
+        if(len(data.data)!=0):
+            self.ref_path_set = True
+            size = len(data.data)/8
+            self.desired_global_path[1]=size
+            for i in range(size):
+                self.desired_global_path[0][i,0]=data.data[8*(size-i)-8] # x
+                self.desired_global_path[0][i,1]=data.data[8*(size-i)-7] # y
+                self.desired_global_path[0][i,2]=data.data[8*(size-i)-6] # z
+                self.desired_global_path[0][i,3]=data.data[8*(size-i)-5] # trav
+                self.desired_global_path[0][i,4]=data.data[8*(size-i)-4] # cov
+                self.desired_global_path[0][i,5]=data.data[8*(size-i)-3] # n_x
+                self.desired_global_path[0][i,6]=data.data[8*(size-i)-2] # n_y
+                self.desired_global_path[0][i,7]=data.data[8*(size-i)-1] # n_z
 
     def cmd(self, data):
 

@@ -32,7 +32,7 @@ class Controller():
         self.pub2 = rospy.Publisher(
             '/curr_state', Float32MultiArray, queue_size=10)
         self.__timer_localization = rospy.Timer(
-            rospy.Duration(0.01), self.get_current_state)
+            rospy.Duration(0.1), self.get_current_state)
         self.listener = tf.TransformListener()
         self.have_plan = 0
         self.curr_time = 0

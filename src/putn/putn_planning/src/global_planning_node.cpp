@@ -99,6 +99,9 @@ void pubInterpolatedPath(const vector<Node*>& solution, ros::Publisher* path_int
       msg.data.push_back(solution[i]->position_(0));
       msg.data.push_back(solution[i]->position_(1));
       msg.data.push_back(solution[i]->position_(2));
+      msg.data.push_back(solution[i]->plane_->normal_vector(0));
+      msg.data.push_back(solution[i]->plane_->normal_vector(1));
+      msg.data.push_back(solution[i]->plane_->normal_vector(2));
     }
     else
     {
@@ -110,6 +113,9 @@ void pubInterpolatedPath(const vector<Node*>& solution, ros::Publisher* path_int
         msg.data.push_back(interpt(0));
         msg.data.push_back(interpt(1));
         msg.data.push_back(interpt(2));
+        msg.data.push_back(solution[i]->plane_->normal_vector(0));
+        msg.data.push_back(solution[i]->plane_->normal_vector(1));
+        msg.data.push_back(solution[i]->plane_->normal_vector(2));
       }
     }
   }
