@@ -1,5 +1,5 @@
 <launch>
-  <include file="$(find aloam_velodyne)/launch/aloam_velodyne_HDL_32.launch">
+  <include file="$(find aloam_velodyne)/launch/aloam_velodyne_HDL_64.launch">
 	  <arg name="rviz" value="false"/>
   </include>
 

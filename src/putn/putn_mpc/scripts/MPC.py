@@ -18,6 +18,8 @@ def MPC(self_state, goal_state, obstacles):
     tra = goal_state[:,2]
     conf = goal_state[:,3]
     tra_mean = np.mean(tra)
+    conf_mean = np.mean(conf)
+    lamb = np.power((1 - tra_mean)*(1 - conf_mean), -2)
     opt_x0 = opti.parameter(3)
     opt_controls = opti.variable(N, 2)
     v = opt_controls[:, 0]
@@ -52,7 +54,7 @@ def MPC(self_state, goal_state, obstacles):
     #### cost function
     obj = 0 
     for i in range(N):
-        obj = obj + 0.1*ca.mtimes([(opt_states[i, :] - goal[[i]]), Q, (opt_states[i, :]- goal[[i]]).T]) + ca.mtimes([opt_controls[i, :], R, opt_controls[i, :].T]) 
+        obj = obj + 0.1*ca.mtimes([(opt_states[i, :] - goal[[i]]), Q, (opt_states[i, :]- goal[[i]]).T]) + lamb * ca.mtimes([opt_controls[i, :], R, opt_controls[i, :].T]) 
     obj = obj + 2*ca.mtimes([(opt_states[N-1, :] - goal[[N-1]]), Q, (opt_states[N-1, :]- goal[[N-1]]).T])
 
     opti.minimize(obj)
