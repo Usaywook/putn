@@ -40,8 +40,8 @@ def MPC(self_state, goal_state, obstacles, psi_prev=0, k_q=20, q_coeff_max=10, i
 
     tra_mean = np.mean(tra)
     conf_mean = np.mean(conf)
-    # lamb = np.power((1 - tra_mean)*(1 - conf_mean), -2)
-    lamb = np.power((1 - tra_mean), -2)
+    lamb = np.power((1 - tra_mean)*(1 - conf_mean), -2)
+    # lamb = np.power((1 - tra_mean), -2)
 
     opt_x0 = opti.parameter(4)
     opt_controls = opti.variable(N, 2)

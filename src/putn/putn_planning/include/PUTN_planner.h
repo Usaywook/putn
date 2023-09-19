@@ -25,6 +25,8 @@ public:
     ros::Publisher* trav_vis_pub_=NULL;
     ros::Publisher* const_vis_pub_=NULL;
 
+    Normalizer normalizer_;
+
     PFRRTStar();
     PFRRTStar(const double &height,World* world);//Input the height of the robot center,and the array of grid map.
     ~PFRRTStar();
@@ -103,6 +105,9 @@ protected:
     int curr_iter_;
     double curr_time_;//(in ms)
 
+    bool rejection_sampling_=true;
+    bool ellipsoid_sampling_=true;
+
     //To accelerate the speed of generating the initial solution,the tree will grow toward the target with it,a centain probability
     double goal_biased_=0.15;
 
@@ -116,7 +121,7 @@ protected:
 
     //parameters related to function fitPlane
     float h_surf_;
-    FitPlaneArg fit_plane_arg_={1.0, 2000.0, 0.0014 ,0.4, 10.0, 0.25, 0.4, 0.1152, 0.9, 0.9, 9.0};
+    FitPlaneArg fit_plane_arg_={1.0, 2000.0, 0.0014 ,0.4, 10.0, 0.25, 0.4, 0.1152, 0.9, 0.9, 0.9};
     double radius_fit_plane_=1.0;
 
     //radius used in function FindNeighbors
@@ -159,6 +164,8 @@ protected:
     Eigen::Vector3d sampleInEllipsoid();
 
     Eigen::Vector2d sampleInSector();
+
+    bool CheckRejection(const Node* new_node);
 
     /**
      * @brief Sample to get a random 2D point in various ways.It integrates all the above sampling functions

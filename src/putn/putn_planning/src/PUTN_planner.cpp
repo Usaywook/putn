@@ -368,9 +368,14 @@ Vector2d PFRRTStar::sample()
     {
         case Global:
         {
-            if(!path_.nodes_.empty()) point_sample=project2plane(sampleInEllipsoid());
-            else
+            if (ellipsoid_sampling_)
+            {
+                if(!path_.nodes_.empty()) point_sample=project2plane(sampleInEllipsoid());
+                else
+                    point_sample=(getRandomNum() < goal_biased_ )?project2plane(node_target_->position_):getRandom2DPoint();
+            } else {
                 point_sample=(getRandomNum() < goal_biased_ )?project2plane(node_target_->position_):getRandom2DPoint();
+            }
         }
         break;
         case Roll:
@@ -424,7 +429,7 @@ Node* PFRRTStar::fitPlane(const Vector2d &p_original)
     if(world_->project2surface(p_original(0),p_original(1),&p_surface))
     {
         node=new Node;
-        node->plane_=new Plane(p_surface,world_,radius_fit_plane_,fit_plane_arg_);
+        node->plane_=new Plane(p_surface,world_,radius_fit_plane_,fit_plane_arg_,normalizer_);
         node->position_ = p_surface + h_surf_ * node->plane_->normal_vector;
     }
     return node;
@@ -440,7 +445,7 @@ void PFRRTStar::fitPlane(Node* node)
     Vector3d p_surface;
     if(world_->project2surface(init_coord(0),init_coord(1),&p_surface))
     {
-        node->plane_=new Plane(p_surface,world_,radius_fit_plane_,fit_plane_arg_);
+        node->plane_=new Plane(p_surface,world_,radius_fit_plane_,fit_plane_arg_,normalizer_);
         //cout << RowVector3d(node->plane_->normal_vector) << endl;
         //cout << RowVector3d(node->position_) << endl;
         node->position_=p_surface + h_surf_ * node->plane_->normal_vector;
@@ -657,6 +662,12 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
             &&world_->isInsideBorder(new_node->position_)//2.The position is out of the range of the grid map.
           )
         {
+            if (CheckRejection(new_node) && rejection_sampling_)
+            {
+                delete new_node;
+                continue;
+            }
+
             //Get the set of the neighbors of the new node in the tree
             vector<pair<Node*,float>> neighbor_record;
             findNearNeighbors(new_node,neighbor_record);
@@ -690,7 +701,9 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
 
     visTree(tree_,tree_vis_pub_);
     pubTraversabilityOfTree(tree_tra_pub_);
-    visTravConst(tree_, trav_vis_pub_, const_vis_pub_);
+    visTravConst(tree_, trav_vis_pub_, const_vis_pub_, normalizer_);
+    normalizer_.printNormalizer();
+    normalizer_.resetNormalizer();
 
     return path_;
 }
@@ -728,4 +741,18 @@ void PFRRTStar::pubTraversabilityOfTree(Publisher* tree_tra_pub, Publisher* tree
     }
     tree_tra_pub->publish(tra_msg);
     tree_const_pub->publish(const_msg);
+}
+
+bool PFRRTStar::CheckRejection(const Node* new_node)
+{
+    float traversability = new_node->plane_->traversability;
+    float constraint = new_node->plane_->constraint;
+    float rho = (1 - traversability) * (1 - constraint);
+    if (getRandomNum() < rho)
+    {
+        return false;
+    } else {
+        curr_iter_--;
+        return true;
+    }
 }

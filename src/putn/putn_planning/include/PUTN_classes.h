@@ -77,6 +77,23 @@ struct FitPlaneArg
     double c_bumpiness_;
 };
 
+class Normalizer
+{
+public:
+    double slope_max_ = 0.0;
+    double slope_min_ = 1.0;
+    double sparsity_max_ = 0.0;
+    double sparsity_min_ = 1.0;
+    double bumpiness_max_ = 0.0;
+    double bumpiness_min_ = 5.0;
+    double traversability_max_ = 0.0;
+    double traversability_min_ = 1.0;
+
+    void resetNormalizer();
+    void updateNormalizer(double slope, double sparsity, double bumpiness, double traversability);
+    void printNormalizer() const;
+};
+
 /**
  * @brief class for describing the local plane.The normal vector can be used to estimate the real
  * position of the robot when moving on this plane,and the traversability can evaluate whether the
@@ -89,10 +106,10 @@ public:
     std::vector<Eigen::Vector3d> plane_pts;
     Eigen::Vector3d normal_vector;
     float traversability;
-    bool constraint;
+    float constraint;
 
     Plane();
-    Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,const FitPlaneArg &arg);
+    Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,const FitPlaneArg &arg, Normalizer &normalizer);
 };
 
 namespace visualization{void visWorld(World* world,ros::Publisher* world_vis_pub);}
@@ -224,7 +241,8 @@ inline float EuclideanDistance(const Node* p,const Node* q){return EuclideanDist
 inline float calCostBetweenTwoNode(const Node* n1,const Node* n2)
 {
     float dis= EuclideanDistance(n1,n2);
-    float cost=dis*(1.0f+0.1f*( 1/(1.0001f-n1->plane_->traversability) +  1/(1.0001f-n2->plane_->traversability) ));
+    float cost=dis*(1.0f+0.1f*( 1/((1.0001f-n1->plane_->traversability)*(1.01f-n1->plane_->constraint)) +  1/((1.0001f-n2->plane_->traversability)*(1.01f-n2->plane_->constraint)) ));
+    // float cost=dis*(1.0f+0.1f*( 1/(1.0001f-n1->plane_->traversability) +  1/(1.0001f-n2->plane_->traversability) ));
     return cost;
 }
 

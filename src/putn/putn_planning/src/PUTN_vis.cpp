@@ -84,7 +84,7 @@ void visSurf(const vector<Node*>& solution, Publisher* surf_vis_pub)
   surf_vis_pub->publish(map_vis);
 }
 
-void visTravConst(const std::vector<Node*> &tree, ros::Publisher* trav_vis_pub, ros::Publisher* const_vis_pub)
+void visTravConst(const std::vector<Node*> &tree, ros::Publisher* trav_vis_pub, ros::Publisher* const_vis_pub, const Normalizer &normalizer)
 {
   if ((trav_vis_pub == NULL) || (const_vis_pub == NULL))
     return;
@@ -113,22 +113,17 @@ void visTravConst(const std::vector<Node*> &tree, ros::Publisher* trav_vis_pub, 
 
   geometry_msgs::Point trav_pt, const_pt;
   std_msgs::ColorRGBA trav_color, const_color;
-  double max_trav = 0;
-  for (const auto& node : tree)
-  {
-    double trav = node->plane_->traversability;
-    if (trav > max_trav)
-    {
-      max_trav = trav;
-    }
-  }
 
   for (const auto& node : tree)
   {
+
     trav_pt.x = node->position_(0);
     trav_pt.y = node->position_(1);
     trav_pt.z = node->position_(2);
-    trav_color.r = (float)(min(node->plane_->traversability / max_trav, 1.0));
+    // float t = (float)(min(node->plane_->traversability / normalizer.traversability_max_, 1.0));
+    float t = node->plane_->traversability;
+    trav_color.b = 1.0 - t;
+    trav_color.r = t;
     trav_color.a = 0.5f;
 
     Trav_Points.colors.push_back(trav_color);

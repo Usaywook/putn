@@ -35,7 +35,8 @@ Path::Path():cost_(INF),type_(Empty){}
 Path::~Path(){}
 
 Plane::Plane(){}
-Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,const FitPlaneArg &arg)
+
+Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,const FitPlaneArg &arg, Normalizer &normalizer)
 {
     init_coord=project2plane(p_surface);
     Vector3d ball_center = world->coordRounding(p_surface);
@@ -90,7 +91,7 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
     VectorXd::Map(&point_z[0], eigen_point_z.size()) = eigen_point_z;
 
     vector<double> weights(point_z.size(), 1.0);
-    float bumpiness = (float)(wasserstein(plane_z, weights, point_z, weights));
+    float bumpiness = (float)(wasserstein(point_z, weights, plane_z, weights));
     int checknan = isnan(bumpiness);
     int checkinf = isinf(bumpiness);
     if (checknan || checkinf)
@@ -99,13 +100,13 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
     }
 
     //calculate indicator1:flatness
-    float flatness = 0;
-    for(size_t i = 0; i < pt_num; i++) flatness+=powf(normal_vector.dot(A.row(i)),4);
-    flatness /= (1+pt_num);
+    // float flatness = 0;
+    // for(size_t i = 0; i < pt_num; i++) flatness+=powf(normal_vector.dot(A.row(i)),4);
+    // flatness /= (1+pt_num);
 
     //calculate indicator2:slope
     Vector3d z_axies(0,0,1);
-    float slope = 180.0f*(float)acos(z_axies.dot(normal_vector)) / PI;
+    float slope = (float)acos(z_axies.dot(normal_vector));
 
     //calculate indicator3:sparsity
     float sparsity = 0.0f;
@@ -143,13 +144,22 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
     }
 
     // The traversability is linear combination of the three indicators
+    // traversability=arg.w_slope_ * slope;
+    // traversability=arg.w_sparsity_ * sparsity;
+    // traversability=arg.w_bumpiness_ * bumpiness;
     traversability=arg.w_total_*(arg.w_slope_*slope+arg.w_sparsity_*sparsity + arg.w_bumpiness_ * bumpiness);
+
+    // constraint = slope > arg.c_slope_;
+    // constraint = bumpiness > arg.c_bumpiness_;
+    // constraint = sparsity > arg.c_sparsity_;
     constraint = ((slope > arg.c_slope_) || (bumpiness > arg.c_bumpiness_)) && (sparsity < arg.c_sparsity_);
 
     traversability = (1.0 < traversability) ? 1.0: traversability;
+
+    normalizer.updateNormalizer(slope, sparsity, bumpiness, traversability);
+
     // cout << "\t(slope, sparsity, bump, tra, const): (" << slope << ", " << sparsity << ", " << bumpiness << ", " << traversability << ", " << constraint << ")"<< endl;
 }
-
 
 World::World(const float &resolution):resolution_(resolution)
 {
@@ -316,5 +326,47 @@ bool World::isInsideBorder(const Vector3i &index)
            index(1) < idx_count_(1)&&
            index(2) < idx_count_(2);
 }
+
+void Normalizer::updateNormalizer(double slope, double sparsity, double bumpiness, double traversability)
+{
+    if (slope > slope_max_) slope_max_ = slope;
+    if (slope < slope_min_) slope_min_ = slope;
+
+    if (sparsity > sparsity_max_) sparsity_max_ = sparsity;
+    if (sparsity < sparsity_min_) sparsity_min_ = sparsity;
+
+    if (bumpiness > bumpiness_max_) bumpiness_max_ = bumpiness;
+    if (bumpiness < bumpiness_min_) bumpiness_min_ = bumpiness;
+
+    if (traversability > traversability_max_) traversability_max_ = traversability;
+    if (traversability < traversability_min_) traversability_min_ = traversability;
 }
 
+void Normalizer::printNormalizer() const
+{
+    cout.precision(2);
+    cout << "\t slope max : " << slope_max_ << endl;
+    cout << "\t slope min : " << slope_min_ << endl;
+
+    cout << "\t sparsity max : " << sparsity_max_ << endl;
+    cout << "\t sparsity min : " << sparsity_min_ << endl;
+
+    cout << "\t bumpiness max : " << bumpiness_max_ << endl;
+    cout << "\t bumpiness min : " << bumpiness_min_ << endl;
+
+    cout << "\t traversability max : " << traversability_max_ << endl;
+    cout << "\t traversability min : " << traversability_min_ << endl;
+}
+
+void Normalizer::resetNormalizer()
+{
+    slope_max_ = 0.0;
+    slope_min_ = 1.0;
+    sparsity_max_ = 0.0;
+    sparsity_min_ = 1.0;
+    bumpiness_max_ = 0.0;
+    bumpiness_min_ = 1.0;
+    traversability_max_ = 0.0;
+    traversability_min_ = 1.0;
+}
+}

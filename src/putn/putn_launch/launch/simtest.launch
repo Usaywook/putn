@@ -44,6 +44,6 @@
       <param name="file/cfg_path" type="string" value="$(find gpr)/config/hyperparam.txt"/>
   </node>
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find putn_launch)/rviz_config/simulation.rviz" required="true"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find putn_launch)/rviz_config/tao.rviz" required="true"/>
 
 </launch>
