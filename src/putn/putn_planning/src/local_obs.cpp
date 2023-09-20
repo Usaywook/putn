@@ -26,7 +26,7 @@ void rcvVelodyneCallBack(const sensor_msgs::PointCloud2& velodyne_points);
 
 void rcvVelodyneCallBack(const sensor_msgs::PointCloud2& velodyne_points)
 {
-  ROS_INFO("Receive velodyne!");
+  // ROS_INFO("Receive velodyne!");
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
   pcl::fromROSMsg(velodyne_points, *cloud);
