@@ -3,6 +3,7 @@
 #include <tf/transform_listener.h>
 #include <visualization_msgs/Marker.h>
 #include <nav_msgs/Path.h>
+#include <geometry_msgs/Point.h>
 #include <std_msgs/Float32MultiArray.h>
 
 using namespace std;
@@ -18,7 +19,7 @@ backward::SignalHandling sh;
 }
 
 // ros related
-ros::Subscriber map_sub, wp_sub;
+ros::Subscriber map_sub, wp_sub, joy_target_sub;
 
 ros::Publisher grid_map_vis_pub;
 
@@ -48,12 +49,14 @@ double neighbor_radius;
 // useful global variables
 Vector3d start_pt;
 Vector3d target_pt;
+Vector3d joy_target_pt;
 World* world = NULL;
 PFRRTStar* pf_rrt_star = NULL;
 
 // function declaration
 void rcvWaypointsCallback(const nav_msgs::Path& wp);
 void rcvPointCloudCallBack(const sensor_msgs::PointCloud2& pointcloud_map);
+void joyGoalCallback(const geometry_msgs::Point& pt);
 void pubInterpolatedPath(const vector<Node*>& solution, ros::Publisher* _path_interpolation_pub);
 void findSolution();
 void callPlanner();
@@ -86,6 +89,15 @@ void rcvPointCloudCallBack(const sensor_msgs::PointCloud2& pointcloud_map)
     world->setObs(obstacle);
   }
   visWorld(world, &grid_map_vis_pub);
+}
+
+void joyGoalCallback(const geometry_msgs::Point& pt)
+{
+  if (!world->has_map_)
+    return;
+  has_goal = true;
+  target_pt = joy_target_pt;
+  ROS_INFO("Receive the planning target");
 }
 
 /**
@@ -253,6 +265,7 @@ int main(int argc, char** argv)
 
   map_sub = nh.subscribe("map", 1, rcvPointCloudCallBack);
   wp_sub = nh.subscribe("waypoints", 1, rcvWaypointsCallback);
+  joy_target_sub = nh.subscribe("subgoal_topic", 1, joyGoalCallback);
 
   grid_map_vis_pub = nh.advertise<sensor_msgs::PointCloud2>("grid_map_vis", 1);
   path_vis_pub = nh.advertise<visualization_msgs::Marker>("path_vis", 20);
@@ -291,6 +304,23 @@ int main(int argc, char** argv)
   // Initialization
   world = new World(resolution);
   pf_rrt_star = new PFRRTStar(h_surf_car, world);
+
+  double map_x_l, map_x_u, map_y_l, map_y_u;
+  nh.param("map/map_x_l", map_x_l, -20.0);
+  nh.param("map/map_x_u", map_x_u, 20.0);
+  nh.param("map/map_y_l", map_y_l, -20.0);
+  nh.param("map/map_y_u", map_y_u, 20.0);
+  world->lowerbound_(0) = map_x_l;
+  world->lowerbound_(1) = map_y_l;
+  world->upperbound_(0) = map_x_u;
+  world->upperbound_(1) = map_y_u;
+  pf_rrt_star->setWorldBound(world->lowerbound_, world->upperbound_);
+
+  double joy_target_x, joy_target_y, joy_target_z;
+  nh.param("planning/target_x", joy_target_x, 9.0);
+  nh.param("planning/target_y", joy_target_y, 2.0);
+  nh.param("planning/target_z", joy_target_z, 1.0);
+  joy_target_pt = Vector3d(joy_target_x, joy_target_y, joy_target_z);
 
   // Set argument of PF-RRT*
   pf_rrt_star->setGoalThre(goal_thre);

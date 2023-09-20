@@ -433,6 +433,12 @@ Node* PFRRTStar::fitPlane(const Vector2d &p_original)
         node->plane_=new Plane(p_surface,world_,radius_fit_plane_,fit_plane_arg_,normalizer_);
         node->position_ = p_surface + h_surf_ * node->plane_->normal_vector;
     }
+    // else {
+    //     node=new Node;
+    //     node->plane_=new Plane(p_surface);
+    //     node->position_ = p_surface + h_surf_ * node->plane_->normal_vector;
+    // }
+
     return node;
 }
 
@@ -450,6 +456,10 @@ void PFRRTStar::fitPlane(Node* node)
         //cout << RowVector3d(node->plane_->normal_vector) << endl;
         //cout << RowVector3d(node->position_) << endl;
         node->position_=p_surface + h_surf_ * node->plane_->normal_vector;
+    } else {
+        node=new Node;
+        node->plane_=new Plane(p_surface);
+        node->position_=p_surface + h_surf_ * node->plane_->normal_vector;
     }
 }
 
@@ -458,7 +468,12 @@ void PFRRTStar::findNearNeighbors(Node* node_new,vector<pair<Node*,float>> &reco
     for (const auto&node:tree_)
     {
         if(EuclideanDistance(node_new,node) < neighbor_radius_ && world_->collisionFree(node_new,node) )
+        {
             record.push_back( pair<Node*,float>(node,calCostBetweenTwoNode(node_new,node)) );
+        } else if(EuclideanDistance(node_new,node) < neighbor_radius_ && node_new->plane_->free == true)
+        {
+            record.push_back( pair<Node*,float>(node,calCostBetweenTwoNode(node_new,node)));
+        }
     }
 }
 
@@ -669,11 +684,9 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
                 delete new_node;
                 continue;
             }
-
             //Get the set of the neighbors of the new node in the tree
             vector<pair<Node*,float>> neighbor_record;
             findNearNeighbors(new_node,neighbor_record);
-
             //Select an appropriate parent node for the new node from the set.
             if(!neighbor_record.empty()) findParent(new_node,neighbor_record);
             //Different from other RRT algorithm,it is posible that the new node is too far away from the whole tree.If
@@ -683,16 +696,13 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
                 delete new_node;
                 continue;
             }
-
             //Add the new node to the tree
             tree_.push_back(new_node);
 
             //Rewire the tree to optimize it
             reWire(new_node,neighbor_record);
-
             //Check if the new node is close enough to the goal
             closeCheck(new_node);
-
             if(planning_state_==Global) generatePath();
         }
         else

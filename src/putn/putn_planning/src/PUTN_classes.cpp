@@ -36,8 +36,18 @@ Path::~Path(){}
 
 Plane::Plane(){}
 
+Plane::Plane(const Eigen::Vector3d &p_surface)
+{
+    init_coord=project2plane(p_surface);
+    normal_vector << 0, 0, 1;
+    traversability = 0;
+    constraint = 0;
+    free = true;
+}
+
 Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,const FitPlaneArg &arg, Normalizer &normalizer)
 {
+    free = false;
     init_coord=project2plane(p_surface);
     Vector3d ball_center = world->coordRounding(p_surface);
     float resolution = world->getResolution();
@@ -308,7 +318,10 @@ bool World::project2surface(const float &x,const float &y,Vector3d* p_surface)
                 break;
             }
         }
+    } else {
+        *p_surface=Vector3d(x,y,lowerbound_(2));
     }
+
     return ifsuccess;
 }
 

@@ -19,6 +19,7 @@
   <node pkg="putn" type="global_planning_node" name="global_planning_node" output="screen" required = "true">
       <remap from="~waypoints"       to="/waypoint_generator/waypoints"/>
       <remap from="~map"             to="/laser_cloud_map"/>
+      <remap from="~subgoal_topic"   to="/subgoal_topic"/>
 
       <rosparam command="load" file="$(find putn)/config/for_real_scenarios/hill.yaml"/>
   </node>

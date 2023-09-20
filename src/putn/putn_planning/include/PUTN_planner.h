@@ -73,6 +73,8 @@ public:
 
     void setNeighborRadius(const double &neighbor_radius){neighbor_radius_=neighbor_radius;}
 
+    void setWorldBound(const Eigen::Vector3d& lowerbound, const Eigen::Vector3d& upperbound){world_->lowerbound_=lowerbound; world_->upperbound_=upperbound;}
+
     Node* origin(){return node_origin_;}
     Node* target(){return node_target_;}
 

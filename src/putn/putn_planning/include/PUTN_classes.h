@@ -107,8 +107,10 @@ public:
     Eigen::Vector3d normal_vector;
     float traversability;
     float constraint;
+    bool free;
 
     Plane();
+    Plane(const Eigen::Vector3d &p_surface);
     Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,const FitPlaneArg &arg, Normalizer &normalizer);
 };
 
