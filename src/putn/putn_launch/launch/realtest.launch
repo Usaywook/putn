@@ -2,7 +2,7 @@
 
   <node name="cloud_converter" pkg="cloud_converter" type="convert.py" required="true"/>
 
-  <include file="$(find aloam_velodyne)/launch/aloam_velodyne_HDL_32.launch">
+  <include file="$(find aloam_velodyne)/launch/aloam_velodyne_HDL_64.launch">
 	  <arg name="rviz" value="false"/>
   </include>
 
@@ -10,7 +10,7 @@
   <node  name="robot_state_publisher"  pkg="robot_state_publisher"  type="robot_state_publisher" />
 
   <node pkg="tf" type="static_transform_publisher" name="world_to_camera_init" args="0 0 0 0 0 0 /world /camera_init 10" />
-  <node pkg="tf" type="static_transform_publisher" name="camera_to_link" args="0 0 -0.4 0 0 0 /aft_mapped /base_link 10" />
+  <node pkg="tf" type="static_transform_publisher" name="camera_to_link" args="0 0 -0.5 0 0 0 /aft_mapped /base_link 10" />
 
   <node pkg="waypoint_generator" name="waypoint_generator" type="waypoint_generator" required = "true">
       <remap from="~goal" to="/goal"/>
@@ -27,7 +27,7 @@
   <node pkg="putn" type="local_obs_node" name="local_obs_node" output="screen" required = "true">
       <remap from="~map"             to="/velodyne_points"/>
 
-      <param name="map/resolution"      value="0.1" />
+      <param name="map/resolution"      value="0.4" />
       <param name="map/local_x_l"       value="-1.8"/>
       <param name="map/local_x_u"       value="1.8"/>
       <param name="map/local_y_l"       value="-1.8"/>

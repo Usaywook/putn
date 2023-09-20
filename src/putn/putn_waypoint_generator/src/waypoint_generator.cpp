@@ -5,6 +5,7 @@
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/PoseArray.h>
 #include <geometry_msgs/Vector3.h>
+#include <visualization_msgs/Marker.h>
 #include <nav_msgs/Path.h>
 #include "sample_waypoints.h"
 #include <vector>
@@ -17,7 +18,7 @@ using bfmt = boost::format;
 
 ros::Publisher pub1;
 ros::Publisher pub2;
-ros::Publisher pub3;
+ros::Publisher clicked_goal_pub;
 string waypoint_type = string("manual");
 bool is_odom_ready;
 nav_msgs::Odometry odom;
@@ -116,6 +117,29 @@ void publish_waypoints_vis() {
     pub2.publish(poseArray);
 }
 
+void publish_clicked_goal(const geometry_msgs::Point& pt)
+{
+    visualization_msgs::Marker goal;
+    goal.header.frame_id = "world";
+    goal.header.stamp = ros::Time::now();
+    goal.ns = "Clicked_Goal";
+
+    goal.action = visualization_msgs::Marker::ADD;
+    goal.pose.orientation.w = 1.0;
+    goal.id = 0;
+    goal.type = visualization_msgs::Marker::CYLINDER;
+
+
+    goal.scale.x = goal.scale.y = goal.scale.z = 0.4f;
+
+    goal.color.g = goal.color.r = goal.color.a = 1.0f;
+    goal.color.b = 0.0f;
+
+    goal.pose.position = pt;
+
+    clicked_goal_pub.publish(goal);
+}
+
 void odom_callback(const nav_msgs::Odometry::ConstPtr& msg) {
     is_odom_ready = true;
     odom = *msg;
@@ -157,6 +181,7 @@ void clicked_goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
         waypoints.poses.push_back(pt);
         publish_waypoints_vis();
         publish_waypoints();
+        publish_clicked_goal(msg->pose.position);
     }
     else
     {
@@ -212,6 +237,7 @@ void goal_callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
             waypoints.poses.push_back(pt);
             publish_waypoints_vis();
             publish_waypoints();
+            publish_clicked_goal(msg->pose.position);
         }
         else
         {
@@ -297,6 +323,7 @@ int main(int argc, char** argv) {
     ros::Subscriber sub4 = n.subscribe("clicked_goal", 10, clicked_goal_callback);
     pub1 = n.advertise<nav_msgs::Path>("waypoints", 50);
     pub2 = n.advertise<geometry_msgs::PoseArray>("waypoints_vis", 10);
+    clicked_goal_pub = n.advertise<visualization_msgs::Marker>("clicked_goal_vis", 1);
 
     trigged_time = ros::Time(0);
 

@@ -105,7 +105,7 @@ protected:
     int curr_iter_;
     double curr_time_;//(in ms)
 
-    bool rejection_sampling_=true;
+    bool rejection_sampling_=false;
     bool ellipsoid_sampling_=true;
 
     //To accelerate the speed of generating the initial solution,the tree will grow toward the target with it,a centain probability

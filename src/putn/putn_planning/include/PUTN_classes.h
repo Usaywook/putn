@@ -241,8 +241,8 @@ inline float EuclideanDistance(const Node* p,const Node* q){return EuclideanDist
 inline float calCostBetweenTwoNode(const Node* n1,const Node* n2)
 {
     float dis= EuclideanDistance(n1,n2);
-    float cost=dis*(1.0f+0.1f*( 1/((1.0001f-n1->plane_->traversability)*(1.01f-n1->plane_->constraint)) +  1/((1.0001f-n2->plane_->traversability)*(1.01f-n2->plane_->constraint)) ));
-    // float cost=dis*(1.0f+0.1f*( 1/(1.0001f-n1->plane_->traversability) +  1/(1.0001f-n2->plane_->traversability) ));
+    // float cost=dis*(1.0f+0.1f*( 1/((1.0001f-n1->plane_->traversability)*(1.01f-n1->plane_->constraint)) +  1/((1.0001f-n2->plane_->traversability)*(1.01f-n2->plane_->constraint)) ));
+    float cost=dis*(1.0f+0.1f*( 1/(1.0001f-n1->plane_->traversability) +  1/(1.0001f-n2->plane_->traversability) ));
     return cost;
 }
 

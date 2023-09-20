@@ -5,7 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /Marker1/Namespaces1
+        - /Goal1/Namespaces1
+        - /ClickedGoal1
       Splitter Ratio: 0.4166666567325592
     Tree Height: 708
   - Class: rviz/Selection
@@ -38,7 +39,7 @@ Visualization Manager:
       Radius: 0.05000000074505806
       Reference Frame: aft_mapped
       Value: true
-    - Alpha: 1
+    - Alpha: 0.5
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
         Max Value: 2
@@ -59,7 +60,7 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.10000000149011612
+      Size (m): 0.4000000059604645
       Style: Boxes
       Topic: /global_planning_node/grid_map_vis
       Unreliable: false
@@ -68,24 +69,32 @@ Visualization Manager:
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /global_planning_node/goal_vis
-      Name: Marker
+      Marker Topic: /global_planning_node/sub_goal_vis
+      Name: Subgoal
       Namespaces:
         {}
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /global_planning_node/goal_vis
+      Name: Goal
+      Namespaces:
+        Goal: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /global_planning_node/path_vis
-      Name: Marker
+      Name: Path
       Namespaces:
-        {}
+        Path: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
       Enabled: true
       Marker Topic: /global_planning_node/tree_vis
-      Name: Marker
+      Name: Tree
       Namespaces:
         Tree: true
       Queue Size: 100
@@ -274,7 +283,7 @@ Visualization Manager:
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
-      Name: PointCloud2
+      Name: LidarCloud
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
@@ -302,7 +311,7 @@ Visualization Manager:
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Min Color: 0; 0; 0
-      Name: PointCloud2
+      Name: Obstacles
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
@@ -315,18 +324,18 @@ Visualization Manager:
       Use rainbow: true
       Value: false
     - Class: rviz/MarkerArray
-      Enabled: false
+      Enabled: true
       Marker Topic: /ob_draw
       Name: MarkerArray
       Namespaces:
         {}
       Queue Size: 100
-      Value: false
+      Value: true
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: true
+      Enabled: false
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
@@ -344,23 +353,23 @@ Visualization Manager:
       Shaft Length: 0.10000000149011612
       Topic: /local_path
       Unreliable: false
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /global_planning_node/const_vis
       Name: Constraint
       Namespaces:
-        Tree: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: /global_planning_node/trav_vis
       Name: Traversability
       Namespaces:
-        Tree: true
+        {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Alpha: 0.5
       Cell Size: 1
       Class: rviz/Grid
@@ -376,20 +385,20 @@ Visualization Manager:
         Y: 0
         Z: 0
       Plane: XY
-      Plane Cell Count: 10
+      Plane Cell Count: 40
       Reference Frame: world
       Value: true
     - Alpha: 0.5
       Buffer Length: 1
       Class: rviz/Path
       Color: 25; 255; 0
-      Enabled: true
+      Enabled: false
       Head Diameter: 0.30000001192092896
       Head Length: 0.20000000298023224
       Length: 0.30000001192092896
       Line Style: Billboards
       Line Width: 0.10000000149011612
-      Name: Path
+      Name: History
       Offset:
         X: 0
         Y: 0
@@ -401,6 +410,14 @@ Visualization Manager:
       Shaft Length: 0.10000000149011612
       Topic: /aft_mapped_path
       Unreliable: false
+      Value: false
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /waypoint_generator/clicked_goal_vis
+      Name: ClickedGoal
+      Namespaces:
+        Clicked_Goal: true
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -419,26 +436,26 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/Orbit
-      Distance: 51.40949249267578
+      Class: rviz/ThirdPersonFollower
+      Distance: 21.834177017211914
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 8.93370246887207
-        Y: 24.949703216552734
-        Z: -27.107044219970703
+        X: 0.7612946033477783
+        Y: -3.867116928100586
+        Z: 4.291534423828125e-6
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.7997977137565613
+      Pitch: 0.5247973203659058
       Target Frame: base_link
-      Value: Orbit (rviz)
-      Yaw: 4.372413158416748
+      Value: ThirdPersonFollower (rviz)
+      Yaw: 5.451823711395264
     Saved:
       - Class: rviz/Orbit
         Distance: 79.24484252929688

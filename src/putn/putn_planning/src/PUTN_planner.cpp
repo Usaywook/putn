@@ -96,9 +96,9 @@ void PFRRTStar::initWithGoal(const Vector3d &start_pos,const Vector3d &end_pos)
 
     if(planning_state_==Roll && last_end_pos_2D!=end_pos_2D_) sub_goal_threshold_=1.0f;
 
-    vector<Node*> origin_and_goal{node_origin_};
-    if(planning_state_==Global) origin_and_goal.push_back(node_target_);
-    visOriginAndGoal(origin_and_goal,goal_vis_pub_);
+    // vector<Node*> origin_and_goal{node_origin_};
+    // if(planning_state_==Global) origin_and_goal.push_back(node_target_);
+    // visOriginAndGoal(origin_and_goal,goal_vis_pub_);
 }
 
 void PFRRTStar::initWithoutGoal(const Vector3d &start_pos)
@@ -603,6 +603,7 @@ void PFRRTStar::generatePath()
                     path_.nodes_.push_back(sub_goal);
                     sub_goal=sub_goal->parent_;
                 }
+
                 path_.cost_=path_.nodes_.front()->cost_;
                 path_.dis_=calPathDis(path_.nodes_);
                 path_.type_=Path::Sub;
@@ -698,6 +699,15 @@ Path PFRRTStar::planner(const int &max_iter,const double &max_time)
     }
 
     if(planning_state_==Roll) generatePath();
+
+    cout << "\tPlanning State : " << planning_state_ << endl;  // Global,Roll,WithoutGoal,Invalid
+    cout << "\tPath Type : " << path_.type_ << endl; // Global,Sub,Empty
+
+    if ((planning_state_ != Invalid) && (path_.type_ != Path::Empty))
+    {
+        vector<Node*> goal{path_.nodes_.front()};
+        visOriginAndGoal(goal, goal_vis_pub_);
+    }
 
     visTree(tree_,tree_vis_pub_);
     pubTraversabilityOfTree(tree_tra_pub_);
