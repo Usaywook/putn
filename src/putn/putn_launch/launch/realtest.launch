@@ -1,5 +1,4 @@
 <launch>
-
   <node name="cloud_converter" pkg="cloud_converter" type="convert.py" required="true"/>
 
   <include file="$(find aloam_velodyne)/launch/aloam_velodyne_HDL_64.launch">

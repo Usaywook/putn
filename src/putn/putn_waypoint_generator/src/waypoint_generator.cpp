@@ -130,10 +130,10 @@ void publish_clicked_goal(const geometry_msgs::Point& pt)
     goal.type = visualization_msgs::Marker::CYLINDER;
 
 
-    goal.scale.x = goal.scale.y = goal.scale.z = 0.4f;
+    goal.scale.x = goal.scale.y = goal.scale.z = 0.6f;
 
-    goal.color.g = goal.color.r = goal.color.a = 1.0f;
-    goal.color.b = 0.0f;
+    goal.color.g = goal.color.b = goal.color.a = 1.0f;
+    goal.color.r = 0.0f;
 
     goal.pose.position = pt;
 

@@ -167,10 +167,18 @@ void findSolution()
   else
   {
     ROS_INFO("Starting PF-RRT* algorithm at the state of rolling planning");
-    int max_iter = 1500;
-    double max_time = 100.0;
-
+    int max_iter = 50000;
+    double max_time = 1000.0;
     solution = pf_rrt_star->planner(max_iter, max_time);
+
+    // int max_iter = 5000;
+    // double max_time = 100.0;
+
+    // while (max_time < max_initial_time)
+    // {
+    //   solution = pf_rrt_star->planner(max_iter, max_time);
+    //   max_time += 100.0;
+    // }
 
     if (!solution.nodes_.empty())
       ROS_INFO("Get a sub path!");

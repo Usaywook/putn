@@ -22,7 +22,7 @@ from std_msgs.msg import Float32MultiArray, Float32, Int16, Bool
 class Controller():
     def __init__(self):
         self.N = 10
-        self.rate = rospy.Rate(50)
+        self.rate = rospy.Rate(10)
         self.curr_state = np.zeros(4)
         self.sub1 = rospy.Subscriber(
             '/local_plan', Float32MultiArray, self.local_planner_cb)

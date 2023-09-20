@@ -21,13 +21,7 @@ planning:
   w_flatness: 2000.0
   w_slope: 0.03
   w_sparsity: 0.2
-  w_bumpiness: 10.0
   w_fit_plane: 0.5
-
-  c_slope: 0.8
-  c_sparsity: 0.1
-  c_bumpiness: 0.5
-
   ratio_max: 0.1
   ratio_min: 0.02
   conv_thre: 0.1152

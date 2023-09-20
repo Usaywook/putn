@@ -80,7 +80,7 @@ Visualization Manager:
       Marker Topic: /global_planning_node/goal_vis
       Name: Goal
       Namespaces:
-        Goal: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -88,7 +88,7 @@ Visualization Manager:
       Marker Topic: /global_planning_node/path_vis
       Name: Path
       Namespaces:
-        Path: true
+        {}
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -363,13 +363,13 @@ Visualization Manager:
       Queue Size: 100
       Value: false
     - Class: rviz/Marker
-      Enabled: false
+      Enabled: true
       Marker Topic: /global_planning_node/trav_vis
       Name: Traversability
       Namespaces:
-        {}
+        Tree: true
       Queue Size: 100
-      Value: false
+      Value: true
     - Alpha: 0.5
       Cell Size: 1
       Class: rviz/Grid
@@ -416,7 +416,7 @@ Visualization Manager:
       Marker Topic: /waypoint_generator/clicked_goal_vis
       Name: ClickedGoal
       Namespaces:
-        Clicked_Goal: true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -436,26 +436,21 @@ Visualization Manager:
   Value: true
   Views:
     Current:
-      Class: rviz/ThirdPersonFollower
-      Distance: 21.834177017211914
+      Angle: 0
+      Class: rviz/TopDownOrtho
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
-      Focal Point:
-        X: 0.7612946033477783
-        Y: -3.867116928100586
-        Z: 4.291534423828125e-6
-      Focal Shape Fixed Size: true
-      Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5247973203659058
-      Target Frame: base_link
-      Value: ThirdPersonFollower (rviz)
-      Yaw: 5.451823711395264
+      Scale: 10
+      Target Frame: camera_init
+      Value: TopDownOrtho (rviz)
+      X: 5.451024055480957
+      Y: -24.419078826904297
     Saved:
       - Class: rviz/Orbit
         Distance: 79.24484252929688

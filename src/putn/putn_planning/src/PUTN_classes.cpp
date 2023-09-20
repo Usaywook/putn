@@ -147,6 +147,7 @@ Plane::Plane(const Eigen::Vector3d &p_surface,World* world,const double &radius,
     traversability=arg.w_total_*(arg.w_slope_*slope+arg.w_sparsity_*sparsity + arg.w_bumpiness_ * bumpiness);
 
     constraint = ((slope > arg.c_slope_) || (bumpiness > arg.c_bumpiness_)) && (sparsity < arg.c_sparsity_);
+    // constraint = sparsity >= arg.c_sparsity_;
 
     traversability = (1.0 < traversability) ? 1.0: traversability;
 

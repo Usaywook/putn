@@ -379,7 +379,8 @@ Vector2d PFRRTStar::sample()
         }
         break;
         case Roll:
-            point_sample=path_.nodes_.empty()?getRandom2DPoint():sampleInSector();
+            if (inspector_sampling_) point_sample=path_.nodes_.empty()?getRandom2DPoint():sampleInSector();
+            else point_sample=getRandom2DPoint();
         break;
         case WithoutGoal:
             point_sample=getRandom2DPoint();

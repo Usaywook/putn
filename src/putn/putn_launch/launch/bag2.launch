@@ -1,0 +1,9 @@
+<launch>
+  <arg name="bag_dir" default="/root/docker-workspace/ssd512/bags/tao" />
+  <arg name="filename" default="fail1.bag" />
+
+  <node pkg="rosbag" type="play" name="player" args="$(arg bag_dir)/$(arg filename) --topics /velodyne_points /joint_states" output="screen" required = "true">
+    <remap from="/velodyne_points"             to="/ouster/points"/>
+    <remap from="/joint_states"             to="/joint_states/old"/>
+  </node>
+</launch>
