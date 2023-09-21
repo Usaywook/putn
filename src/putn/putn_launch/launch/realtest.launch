@@ -42,4 +42,8 @@
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find putn_launch)/rviz_config/tao.rviz" required="true"/>
 
+  <!-- <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
+     <arg name="port" value="9090"/>
+  </include> -->
+
 </launch>

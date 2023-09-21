@@ -456,11 +456,12 @@ void PFRRTStar::fitPlane(Node* node)
         //cout << RowVector3d(node->plane_->normal_vector) << endl;
         //cout << RowVector3d(node->position_) << endl;
         node->position_=p_surface + h_surf_ * node->plane_->normal_vector;
-    } else {
-        node=new Node;
-        node->plane_=new Plane(p_surface);
-        node->position_=p_surface + h_surf_ * node->plane_->normal_vector;
     }
+    // else {
+    //     node=new Node;
+    //     node->plane_=new Plane(p_surface);
+    //     node->position_=p_surface + h_surf_ * node->plane_->normal_vector;
+    // }
 }
 
 void PFRRTStar::findNearNeighbors(Node* node_new,vector<pair<Node*,float>> &record)
@@ -470,10 +471,11 @@ void PFRRTStar::findNearNeighbors(Node* node_new,vector<pair<Node*,float>> &reco
         if(EuclideanDistance(node_new,node) < neighbor_radius_ && world_->collisionFree(node_new,node) )
         {
             record.push_back( pair<Node*,float>(node,calCostBetweenTwoNode(node_new,node)) );
-        } else if(EuclideanDistance(node_new,node) < neighbor_radius_ && node_new->plane_->free == true)
-        {
-            record.push_back( pair<Node*,float>(node,calCostBetweenTwoNode(node_new,node)));
         }
+        // else if(EuclideanDistance(node_new,node) < neighbor_radius_ && node_new->plane_->free == true)
+        // {
+        //     record.push_back( pair<Node*,float>(node,calCostBetweenTwoNode(node_new,node)));
+        // }
     }
 }
 
@@ -632,9 +634,46 @@ void PFRRTStar::generatePath()
                 for(const auto&node:tree_)
                 {
                     float tmp_dis=EuclideanDistance(project2plane(node->position_),end_pos_2D_);
+
                     if(tmp_dis<min_dis) min_dis=tmp_dis;
+
                 }
                 sub_goal_threshold_=min_dis+1.0f;
+
+                // float min_cost=INF;
+                // float min_dis=INF;
+                // float tmp_dis;
+                // float traversability;
+                // // vector<Node*> leaf_nodes;
+                // for(const auto&node:tree_)
+                // {
+                //     // if(node->children_.size() != 0) continue;
+                //     // leaf_nodes.push_back(node);
+
+                //     tmp_dis = EuclideanDistance(project2plane(node->position_), end_pos_2D_);
+                //     traversability = node->plane_->traversability;
+                //     float tmp_cost = tmp_dis * (1 + 5.0 *  (1 / (1.0001f - traversability) - 1.0));
+
+                //     if(tmp_cost < min_cost)
+                //     {
+                //         min_cost = tmp_cost;
+                //         min_dis = tmp_dis;
+                //         sub_goal = node;
+
+                //     }
+                // }
+
+                // while(sub_goal!=NULL)
+                // {
+                //     path_.nodes_.push_back(sub_goal);
+                //     sub_goal=sub_goal->parent_;
+                // }
+
+                // path_.cost_=path_.nodes_.front()->cost_;
+                // path_.dis_=calPathDis(path_.nodes_);
+                // path_.type_=Path::Sub;
+
+                // visOriginAndGoal(leaf_nodes, leaf_vis_pub_);
             }
         }
         break;

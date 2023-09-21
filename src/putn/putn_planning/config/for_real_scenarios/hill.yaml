@@ -1,8 +1,8 @@
 map:
   resolution: 0.4
-  map_x_l: -5.0
+  map_x_l: -5
   map_x_u: 20
-  map_y_l: -10
+  map_y_l: -5
   map_y_u: 20
 
 planning:
@@ -13,15 +13,15 @@ planning:
   step_size: 0.4
   h_surf_car: 0.7
 
-  radius_fit_plane: 1.2
+  radius_fit_plane: 2.0
 
-  w_slope: 0.33 #1.0
-  w_sparsity: 0.33 # 1.0
+  w_slope: 0.5 #1.0
+  w_sparsity: 0.16 # 1.0
   w_bumpiness: 0.83 #2.5
   w_fit_plane: 1.0
 
-  c_slope: 0.3
-  c_sparsity: 0.65
+  c_slope: 0.33
+  c_sparsity: 0.7
   c_bumpiness: 0.18
 
   ratio_max: 0.4 # 0.1

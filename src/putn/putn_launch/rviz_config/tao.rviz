@@ -5,10 +5,10 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /AllMap1
+        - /Axes1
         - /Goal1/Namespaces1
-        - /ClickedGoal1
-      Splitter Ratio: 0.4166666567325592
+        - /Grid1
+      Splitter Ratio: 0.47777777910232544
     Tree Height: 708
   - Class: rviz/Selection
     Name: Selection
@@ -81,7 +81,7 @@ Visualization Manager:
       Marker Topic: /global_planning_node/goal_vis
       Name: Goal
       Namespaces:
-        {}
+        Goal: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -89,7 +89,7 @@ Visualization Manager:
       Marker Topic: /global_planning_node/path_vis
       Name: Path
       Namespaces:
-        {}
+        Path: true
       Queue Size: 100
       Value: true
     - Class: rviz/Marker
@@ -187,87 +187,21 @@ Visualization Manager:
       Value: true
       Visual Enabled: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Filter (blacklist): ""
       Filter (whitelist): ""
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        aft_mapped:
-          Value: true
-        base_footprint:
-          Value: true
-        base_link:
-          Value: true
-        camera_init:
-          Value: true
-        front_bumper_link:
-          Value: true
-        front_left_wheel_link:
-          Value: true
-        front_right_wheel_link:
-          Value: true
-        imu_link:
-          Value: true
-        inertial_link:
-          Value: true
-        rear_bumper_link:
-          Value: true
-        rear_left_wheel_link:
-          Value: true
-        rear_right_wheel_link:
-          Value: true
-        top_chassis_link:
-          Value: true
-        top_plate_front_link:
-          Value: true
-        top_plate_link:
-          Value: true
-        top_plate_rear_link:
-          Value: true
-        user_rail_link:
-          Value: true
-        world:
-          Value: true
       Marker Scale: 1
       Name: TF
       Show Arrows: false
       Show Axes: false
       Show Names: false
       Tree:
-        world:
-          camera_init:
-            aft_mapped:
-              base_link:
-                base_footprint:
-                  {}
-                front_bumper_link:
-                  {}
-                front_left_wheel_link:
-                  {}
-                front_right_wheel_link:
-                  {}
-                imu_link:
-                  {}
-                inertial_link:
-                  {}
-                rear_bumper_link:
-                  {}
-                rear_left_wheel_link:
-                  {}
-                rear_right_wheel_link:
-                  {}
-                top_chassis_link:
-                  {}
-                top_plate_link:
-                  top_plate_front_link:
-                    {}
-                  top_plate_rear_link:
-                    {}
-                user_rail_link:
-                  {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -325,13 +259,13 @@ Visualization Manager:
       Use rainbow: true
       Value: false
     - Class: rviz/MarkerArray
-      Enabled: true
+      Enabled: false
       Marker Topic: /ob_draw
-      Name: MarkerArray
+      Name: ObDraw
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
     - Alpha: 1
       Buffer Length: 1
       Class: rviz/Path
@@ -380,13 +314,13 @@ Visualization Manager:
         Line Width: 0.029999999329447746
         Value: Lines
       Name: Grid
-      Normal Cell Count: 0
+      Normal Cell Count: 5
       Offset:
-        X: 0
-        Y: 0
+        X: 7.5
+        Y: 7.5
         Z: 0
       Plane: XY
-      Plane Cell Count: 40
+      Plane Cell Count: 25
       Reference Frame: world
       Value: true
     - Alpha: 0.5
@@ -416,6 +350,14 @@ Visualization Manager:
       Enabled: true
       Marker Topic: /waypoint_generator/clicked_goal_vis
       Name: ClickedGoal
+      Namespaces:
+        Clicked_Goal: true
+      Queue Size: 100
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /global_planning_node/leaf_vis
+      Name: Marker
       Namespaces:
         {}
       Queue Size: 100
@@ -447,7 +389,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Scale: 59.608333587646484
+      Scale: 62.718013763427734
       Target Frame: camera_init
       Value: TopDownOrtho (rviz)
       X: -1.402768850326538

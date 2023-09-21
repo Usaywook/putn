@@ -25,6 +25,7 @@ ros::Publisher grid_map_vis_pub;
 
 ros::Publisher path_vis_pub;
 ros::Publisher goal_vis_pub;
+ros::Publisher leaf_vis_pub;
 ros::Publisher surf_vis_pub;
 ros::Publisher tree_vis_pub;
 ros::Publisher path_interpolation_pub;
@@ -160,7 +161,7 @@ void findSolution()
   else if (pf_rrt_star->state() == Global)
   {
     ROS_INFO("Starting PF-RRT* algorithm at the state of global planning");
-    int max_iter = 5000;
+    int max_iter = 10000;
     double max_time = 100.0;
 
     while (solution.type_ == Path::Empty && max_time < max_initial_time)
@@ -270,6 +271,7 @@ int main(int argc, char** argv)
   grid_map_vis_pub = nh.advertise<sensor_msgs::PointCloud2>("grid_map_vis", 1);
   path_vis_pub = nh.advertise<visualization_msgs::Marker>("path_vis", 20);
   goal_vis_pub = nh.advertise<visualization_msgs::Marker>("goal_vis", 1);
+  leaf_vis_pub = nh.advertise<visualization_msgs::Marker>("leaf_vis", 1);
   surf_vis_pub = nh.advertise<sensor_msgs::PointCloud2>("surf_vis", 100);
   tree_vis_pub = nh.advertise<visualization_msgs::Marker>("tree_vis", 1);
   trav_vis_pub = nh.advertise<visualization_msgs::Marker>("trav_vis", 1);
@@ -330,6 +332,7 @@ int main(int argc, char** argv)
   pf_rrt_star->setNeighborRadius(neighbor_radius);
 
   pf_rrt_star->goal_vis_pub_ = &goal_vis_pub;
+  pf_rrt_star->leaf_vis_pub_ = &leaf_vis_pub;
   pf_rrt_star->tree_vis_pub_ = &tree_vis_pub;
   pf_rrt_star->tree_tra_pub_ = &tree_tra_pub;
   pf_rrt_star->tree_const_pub_ = &tree_const_pub;

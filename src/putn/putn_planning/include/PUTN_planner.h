@@ -20,6 +20,7 @@ public:
     //ros related,which will not work unless the user assigns.
     ros::Publisher* tree_vis_pub_=NULL;
     ros::Publisher* goal_vis_pub_=NULL;
+    ros::Publisher* leaf_vis_pub_=NULL;
     ros::Publisher* tree_tra_pub_=NULL;
     ros::Publisher* tree_const_pub_=NULL;
     ros::Publisher* trav_vis_pub_=NULL;
