@@ -1,0 +1,8 @@
+<launch>
+    <arg name="bag_dir" default="/root/docker-workspace/ssd512/bags/tao" />
+    <arg name="filename" default="start1_1.bag" />
+
+    <node pkg="rosbag" type="play" name="player" args="$(arg bag_dir)/$(arg filename) --pause" output="screen">
+    </node>
+
+</launch>
